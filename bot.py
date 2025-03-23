@@ -9,6 +9,7 @@ from gtts import gTTS #Google Text-To-Speech API
 
 import os
 from dotenv import load_dotenv
+import time
 
 from vcgencmd import Vcgencmd
 
@@ -26,28 +27,34 @@ intents = discord.Intents().all()
 
 bot = commands.Bot(command_prefix='!', intents=intents, activity=discord.Game(name='WarpGame'))
 
+startup_time = None
+
 @bot.event
 async def on_ready():
     try:
-        print("WarpBot has risen.")
+        print("WarpBot is now online.")
         synced = await bot.tree.sync()
         print(f"All {len(synced)} command(s) have been synced.")
+        global startup_time
+        startup_time = time.time()
     except Exception as e:
         print(e)
 
 ########## GENERAL COMMANDS ##########
 
-# Respond with Pong!
+# Respond with Pong + Round Trip Latency
 @bot.tree.command(name='ping')
 async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message(f"Pong!", ephemeral=True)
+    latency = round(interaction.client.latency * 1000)
+    await interaction.response.send_message(f"Pong! Latency: {latency}ms", ephemeral=True)
 
-# Respond with Ping!
+# Respond with Ping + Round Trip Latency
 @bot.tree.command(name='pong')
 async def pong(interaction: discord.Interaction):
-    await interaction.response.send_message(f"Ping!", ephemeral=True)
+    latency = round(interaction.client.latency * 1000)
+    await interaction.response.send_message(f"Ping! Latency: {latency}ms", ephemeral=True)
 
-# Provide about information regarding bot
+# Provide about information regarding Bot
 @bot.tree.command(name='about')
 async def about(interaction: discord.Interaction):
     view = discord.ui.View()
@@ -65,7 +72,33 @@ async def hardware(interaction: discord.Interaction):
     temp = vcgm.measure_temp()
     clock = int(vcgm.measure_clock('arm')/1000000)
     throttled = vcgm.get_throttled()['breakdown']['2']
-    await interaction.response.send_message(f"This Bot is running on a **Raspberry Pi 5 8GB with 512GB of SSD Storage**.\n\n*Current Hardware Info:*\nTemperature: `{temp}C`\nClock: `{clock}MHz`\nThrottled: `{throttled}`", silent=True)
+    await interaction.response.send_message(f"This Bot is running on a **Raspberry Pi 5 8GB with 512GB of SSD Storage**.\n\n*Current Hardware Info:*\nTemperature: `{temp}C`\nClock: `{clock}MHz`\nThrottled: `{throttled}`", ephemeral=True)
+
+# Uptime Information
+@bot.tree.command(name='uptime')
+async def uptime(interaction: discord.Interaction):
+    if startup_time:
+        uptime_seconds = int(time.time() - startup_time)
+        
+        days = uptime_seconds // 86400
+        hours = (uptime_seconds % 86400) // 3600
+        minutes = (uptime_seconds % 3600) // 60
+        seconds = uptime_seconds % 60
+        
+        uptime_str = f"{days} days, {hours} hours, {minutes} minutes, and {seconds} seconds"
+        
+        await interaction.response.send_message(f"Bot uptime: {uptime_str}", ephemeral=True)
+    else:
+        await interaction.response.send_message("Uptime could not be determined.", ephemeral=True)
+
+# Get the avatar of a user
+@bot.tree.command(name='avatar')
+async def avatar(interaction: discord.Interaction, user: discord.User = None):
+    if user is None:
+        user = interaction.user
+
+    avatar_url = user.avatar.url if user.avatar else user.default_avatar.url
+    await interaction.response.send_message(f"{user.mention}'s avatar: {avatar_url}", ephemeral=True)
 
 ########## ASK COMMAND ##########
 
