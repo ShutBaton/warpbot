@@ -12,7 +12,7 @@ Hardware being used to run:
 - Raspberry Pi M.2 HAT+, Official 512GB SSD
 - [3D Printed Case by pixel_design on Makerworld](https://makerworld.com/en/models/1063966-raspberry-pi-5-ai-m-2-hat-snap-case), printed in Bambu PLA Basic Black, `100% Infill`, `Arachne`, `0.12mm Layer Height`, on a Bambu Lab P1S with a `Hardened Steel 0.4mm Nozzle`.
 
-Run as a python file, I guess. 😄
+Run as a python file, I guess, and dont forget to fill out your .env with the `DISCORD_TOKEN` and `GEMINI_API_KEY`!. 😄
 
 ## Commands
 `/about`
