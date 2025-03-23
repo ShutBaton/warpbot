@@ -10,6 +10,8 @@ from gtts import gTTS #Google Text-To-Speech API
 import os
 from dotenv import load_dotenv
 
+from vcgencmd import Vcgencmd
+
 ########## SETUP ##########
 
 load_dotenv()
@@ -55,6 +57,15 @@ async def about(interaction: discord.Interaction):
         ephemeral=True,
         view=view
     )
+
+# Raspberry Pi 5 Hardware Information
+@bot.tree.command(name='hardware')
+async def hardware(interaction: discord.Interaction):
+    vcgm = Vcgencmd()
+    temp = vcgm.measure_temp()
+    clock = int(vcgm.measure_clock('arm')/1000000)
+    throttled = vcgm.get_throttled()['breakdown']['2']
+    await interaction.response.send_message(f"This Bot is running on a **Raspberry Pi 5 8GB with 512GB of SSD Storage**.\n\n*Current Hardware Info:*\nTemperature: `{temp}C`\nClock: `{clock}MHz`\nThrottled: `{throttled}`", silent=True)
 
 ########## ASK COMMAND ##########
 
