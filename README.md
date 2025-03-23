@@ -2,7 +2,7 @@
 A repository used for development of the experimental WarpBot AI-powered Discord Bot.
 
 ## Dependancies
-There are a few, mainly GTTS, Discord.py, asyncio and dotenv. I'm sure you can figure out what to install and how to do this. Besides, this code is designed for specific hardware.
+There are a few, mainly `gTTS`, `google-generativeai`, `discord`, `asyncio`, `vcgencmd` and `dotenv`. I'm sure you can figure out what to install and how to do this (just `pip install` those listed and you *should* be fine). Besides, this code is designed for specific hardware.
 
 ## Usage
 This is designed ONLY for use on a Raspberry Pi 5.
