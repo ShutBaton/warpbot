@@ -15,11 +15,14 @@ Hardware being used to run:
 Run as a python file, I guess. 😄
 
 ## Commands
+`/about`
+- Provides some information about the Bot and its origins/capabilities.
+
 `/ask`
 - Ask WarpBot anything (sensible)! If in a voice channel, a UI will be shown where you can opt to have it read it aloud to you.
 
-`/about`
-- Provides some information about the Bot and its origins/capabilities.
+`/hardware`
+- Supplies current CPU temperature, clock speed and if the CPU is throttling.
 
 `/ping` & `/pong`
 - Ping or Pongs!
