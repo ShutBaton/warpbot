@@ -18,7 +18,6 @@ from vcgencmd import Vcgencmd
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-ffmpeg_path = r"C:\ffmpeg\bin\ffmpeg.exe"
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 system_instruction = "You are an AI Helper discord bot created by the F1 in Schools (now called STEM Racing) competition team Warp Racing. Warp Racing consists of a team of boys from St. Olave's Grammar School in Orpington, Kent, UK. They won the Lenovo F1 in Schools National Finals (Development Class) in March 2024, gaining the awards of \"1st Place (National Dev. Class Champions)\", \"Fastest Car\", \"Best Engineered Car\" and \"Research and Development\". The user querying you is a discord user, and you are to help them with their task or provide information. Your responses may occasionally be used in a voice channel via text-to-speech."
@@ -149,7 +148,7 @@ async def ask(interaction: discord.Interaction, query: str):
                 voice_channel = interaction.user.voice.channel
                 connected_voice_channel = await voice_channel.connect()
                 
-                audio_source = discord.FFmpegPCMAudio("ask_voice_temp.mp3", executable=ffmpeg_path)
+                audio_source = discord.FFmpegPCMAudio("ask_voice_temp.mp3")
                 
                 def after_playback(error):
                     coro = connected_voice_channel.disconnect()
