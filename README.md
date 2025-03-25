@@ -7,7 +7,7 @@ This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - prov
 There are a few dependencies, mainly `gTTS`, `google-generativeai`, `discord`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
 Similarly, ffmpeg is a requirement for usage of the `Voice + Text` reading feature. I installed ffmpeg (Raspberry Pi OS) using `sudo apt install -y ffmpeg`.
 
-Run as a python file, and dont forget to fill out your .env with the `DISCORD_TOKEN` and `GEMINI_API_KEY`!. A python virtual environment for installation and execution is recommended. 😄
+Run as a python file, and dont forget to fill out your `.env` (a template is provided) with the `DISCORD_TOKEN` and `GEMINI_API_KEY`!. A python virtual environment for installation and execution is recommended. 😄
 
 ## Hardware
 Hardware being used to run the bot:
