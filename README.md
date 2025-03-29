@@ -5,6 +5,7 @@ A repository used for development of the experimental WarpBot AI-powered Discord
 This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what it runs on.
 
 There are a few dependencies, mainly `gTTS`, `google-generativeai`, `discord`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
+
 Similarly, ffmpeg is a requirement for usage of the `Voice + Text` reading feature. I installed ffmpeg (Raspberry Pi OS) using `sudo apt install -y ffmpeg`.
 
 Run as a python file, and dont forget to fill out your `.env` (a template is provided) with the `DISCORD_TOKEN` and `GEMINI_API_KEY`!. A python virtual environment for installation and execution is recommended. 😄
