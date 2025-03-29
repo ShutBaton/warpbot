@@ -6,7 +6,7 @@ This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - prov
 
 There are a few dependencies, mainly `gTTS`, `google-generativeai`, `discord`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
 
-Similarly, ffmpeg is a requirement for the `Voice + Text` feature. I installed ffmpeg (Raspberry Pi OS) using `sudo apt install -y ffmpeg`.
+Similarly, `ffmpeg` is a requirement for the `Voice + Text` feature. I installed `ffmpeg` (Raspberry Pi OS) using `sudo apt install -y ffmpeg`.
 
 Run as a python file, and dont forget to fill out your `.env` (a template is provided) with the `DISCORD_TOKEN` and `GEMINI_API_KEY`!. A python virtual environment for installation and execution is recommended. 😄
 
@@ -15,7 +15,7 @@ Hardware being used to run the bot:
 - Raspberry Pi 5 8GB
 - Raspberry Pi Active Cooler
 - Raspberry Pi M.2 HAT+, Official 512GB SSD
-- [3D Printed Case by pixel_design on Makerworld](https://makerworld.com/en/models/1063966-raspberry-pi-5-ai-m-2-hat-snap-case), printed in Bambu PLA Basic Black, `100% Infill`, `Arachne`, `0.12mm Layer Height`, on a Bambu Lab P1S with a `Hardened Steel 0.4mm Nozzle`.
+- [3D Printed Case by pixel_design on Makerworld](https://makerworld.com/en/models/1063966-raspberry-pi-5-ai-m-2-hat-snap-case), printed in Bambu PLA Basic Black, 100% Infill, Arachne, 0.12mm Layer Height, on a Bambu Lab P1S with a Hardened Steel 0.4mm Nozzle.
 
 ## Commands
 `/about`
