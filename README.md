@@ -23,6 +23,9 @@ Hardware being used to run the bot:
 `/ask`
 - Ask WarpBot anything (sensible)! If in a voice channel, a UI will be shown where you can opt to have it read it aloud to you.
 
+`/avatar`
+- Returns URL to a selected user's discord avatar.
+
 `/hardware`
 - Supplies current CPU temperature, clock speed and if the CPU is throttling.
 
