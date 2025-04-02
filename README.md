@@ -37,8 +37,10 @@ Hardware being used to run the bot:
 - Tells you how long the bot has had a continous uptime! The Pi however, never turns off...
 
 ## Todo
-- [ ] Add voltage and GPU temp / voltage to `/hardware`
-- [ ] Add finance tracking
+- [x] Add `/hardware` for hardware monitoring, `/uptime`, and latency to `/ping` & `/pong`
+- [x] Add `/avatar` as a meme function, also allows for quick access to Warp logo.
+- [ ] Add voltage and GPU temp / voltage to `/hardware`.
+- [ ] Add finance tracking.
 - [ ] Update all references to Gemini™ to mention trademark!
 
 Gemini™ is a trademark of Google LLC.
