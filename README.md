@@ -39,10 +39,10 @@ Hardware being used to run the bot:
 ## Todo
 - [x] Add `/hardware` for hardware monitoring, `/uptime`, and latency to `/ping` & `/pong`
 - [x] Add `/avatar` as a meme function, also allows for quick access to Warp logo.
-- [ ] Add voltage and GPU temp / voltage to `/hardware`.
-- [ ] Add finance tracking.
 - [x] Update all references to Gemini™ to mention trademark!
 - [x] Add prompt screening to prevent bot misuse.
 - [x] Use `google-genai` instead of `google-generativeai`
+- [ ] Add voltage and GPU temp / voltage to `/hardware`.
+- [ ] Add finance tracking.
 
 Gemini™ is a trademark of Google LLC.
