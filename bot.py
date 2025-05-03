@@ -1,27 +1,28 @@
 import asyncio
-import discord
-from discord import app_commands
-from discord.ext import commands
-from discord.voice_client import VoiceClient
-from discord.ui import View, Button
-import google.generativeai as genai #Google Gemini API
-from gtts import gTTS #Google Text-To-Speech API
+import discord                                  # Discord
+from discord import app_commands                # Discord
+from discord.ext import commands                # Discord
+from discord.voice_client import VoiceClient    # Discord
+from discord.ui import View, Button             # Discord
+from google import genai                        # Google Gemini
+from google.genai import types                  # Google Gemini
+from gtts import gTTS                           # Google Text-To-Speech
 
 import os
 from dotenv import load_dotenv
 import time
 
-from vcgencmd import Vcgencmd
+from vcgencmd import Vcgencmd                   # Hardware Monitoring
 
 ########## SETUP ##########
 
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+ffmpeg_path = r"C:\ffmpeg\bin\ffmpeg.exe"
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-system_instruction = "You are an AI Helper discord bot created by the F1 in Schools (now called STEM Racing) competition team Warp Racing. Warp Racing consists of a team of boys from St. Olave's Grammar School in Orpington, Kent, UK. They won the Lenovo F1 in Schools National Finals (Development Class) in March 2024, gaining the awards of \"1st Place (National Dev. Class Champions)\", \"Fastest Car\", \"Best Engineered Car\" and \"Research and Development\". The user querying you is a discord user, and you are to help them with their task or provide information. Your responses may occasionally be used in a voice channel via text-to-speech."
-model = genai.GenerativeModel(model_name="gemini-2.0-flash", system_instruction=system_instruction)
+warp_system_instruction = "You are an AI Helper discord bot created by the F1 in Schools (now called STEM Racing) competition team Warp Racing. Warp Racing consists of a team of boys from St. Olave's Grammar School in Orpington, Kent, UK. They won the Lenovo F1 in Schools National Finals (Development Class) in March 2024, gaining the awards of \"1st Place (National Dev. Class Champions)\", \"Fastest Car\", \"Best Engineered Car\" and \"Research and Development\". The user querying you is a discord user, and you are to help them with their task or provide information. Your responses may occasionally be used in a voice channel via text-to-speech."
 intents = discord.Intents().all()
 
 bot = commands.Bot(command_prefix='!', intents=intents, activity=discord.Game(name='WarpGame'))
@@ -59,7 +60,7 @@ async def about(interaction: discord.Interaction):
     view = discord.ui.View()
     view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="warp-racing.com", url="https://warp-racing.com"))
     await interaction.response.send_message(
-        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing and powered by the Google Gemini 2.0 Flash Large Language Model. I am multilingual and have knowledge of events up to **August 2024**.\n*Please note that each `/ask` command is individual, and does not include previous context.*",
+        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing and powered by the Google Geminiâ¢ 2.0 Flash Large Language Model. I am multilingual and have knowledge of events up to **August 2024**.\n*Please note that each `/ask` command is individual, and does not include previous context.*\n\nGeminiâ¢ is a trademark of Google LLC.",
         ephemeral=True,
         view=view
     )
@@ -112,10 +113,33 @@ async def ask(interaction: discord.Interaction, query: str):
 
             ########## TEXT GENERATION ##########
 
-            response = model.generate_content(
-                f"{interaction.user.mention}'s query: {query}",
-                generation_config=genai.types.GenerationConfig(max_output_tokens=600, temperature=1, response_mime_type="text/plain"),
-                stream=True,
+            response = client.models.generate_content_stream(
+                model="gemini-2.0-flash",
+                contents=f"{interaction.user.mention}'s query: {query}",
+                config=types.GenerateContentConfig(
+                    max_output_tokens=600,
+                    temperature=1,
+                    safety_settings=[
+                        types.SafetySetting(
+                            category="HARM_CATEGORY_HARASSMENT",
+                            threshold="BLOCK_MEDIUM_AND_ABOVE",  # Block some
+                        ),
+                        types.SafetySetting(
+                            category="HARM_CATEGORY_HATE_SPEECH",
+                            threshold="BLOCK_MEDIUM_AND_ABOVE",  # Block some
+                        ),
+                        types.SafetySetting(
+                            category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                            threshold="BLOCK_LOW_AND_ABOVE",  # Block most
+                        ),
+                        types.SafetySetting(
+                            category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                            threshold="BLOCK_MEDIUM_AND_ABOVE",  # Block some
+                        ),
+                    ],
+                    response_mime_type="text/plain",
+                    system_instruction=warp_system_instruction
+                )
             )
 
             sent_message = await interaction.followup.send("Generating...")
