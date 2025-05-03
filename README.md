@@ -42,5 +42,6 @@ Hardware being used to run the bot:
 - [ ] Add voltage and GPU temp / voltage to `/hardware`.
 - [ ] Add finance tracking.
 - [ ] Update all references to Gemini™ to mention trademark!
+- [ ] Add prompt screening to prevent bot misuse.
 
 Gemini™ is a trademark of Google LLC.
