@@ -4,7 +4,7 @@ A repository used for development of the experimental WarpBot AI-powered Discord
 ## Dependencies / Install
 This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what it runs on.
 
-There are a few dependencies, mainly `gTTS`, `google-generativeai`, `discord`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
+There are a few dependencies, mainly `gTTS`, `google-genai`, `discord`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
 
 Similarly, `ffmpeg` is a requirement for the `Voice + Text` feature. I installed `ffmpeg` (Raspberry Pi OS) using `sudo apt install -y ffmpeg`.
 
@@ -41,7 +41,8 @@ Hardware being used to run the bot:
 - [x] Add `/avatar` as a meme function, also allows for quick access to Warp logo.
 - [ ] Add voltage and GPU temp / voltage to `/hardware`.
 - [ ] Add finance tracking.
-- [ ] Update all references to Gemini™ to mention trademark!
-- [ ] Add prompt screening to prevent bot misuse.
+- [x] Update all references to Gemini™ to mention trademark!
+- [x] Add prompt screening to prevent bot misuse.
+- [x] Use `google-genai` instead of `google-generativeai`
 
 Gemini™ is a trademark of Google LLC.
