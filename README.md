@@ -2,7 +2,7 @@
 A repository used for development of the experimental WarpBot AI-powered Discord Bot.
 
 ## Dependencies / Install
-This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what it runs on.
+This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what it runs on. The use of a python virtual environment is highly recommended.
 
 There are a few dependencies, mainly `gTTS`, `google-genai`, `discord`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
 
