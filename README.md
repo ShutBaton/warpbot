@@ -44,5 +44,7 @@ Hardware being used to run the bot:
 - [x] Use `google-genai` instead of `google-generativeai`
 - [ ] Add voltage and GPU temp / voltage to `/hardware`.
 - [ ] Add finance tracking.
+- [ ] Make uptime use discord's support of `<t:[UNIX TIMESTAMP]:R>` to show that something is `[some amount of time] ago` instead of the use of `time` for `/uptime` so far.
+- [ ] Research how `google-genai` handles API errors and make the bot display them better, instead of discord showing a "application not responding" error.
 
 Gemini™ is a trademark of Google LLC.
