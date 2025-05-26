@@ -18,6 +18,9 @@ Hardware being used to run the bot:
 - [3D Printed Case by pixel_design on Makerworld](https://makerworld.com/en/models/1063966-raspberry-pi-5-ai-m-2-hat-snap-case), printed in Bambu PLA Basic Black, 100% Infill, Arachne, 0.12mm Layer Height, on a Bambu Lab P1S with a Hardened Steel 0.4mm Nozzle.
 
 ## Commands
+`/help`
+- Provides some help (a command list for this bot).
+
 `/about`
 - Provides some information about the Bot and its origins/capabilities.
 
@@ -28,7 +31,7 @@ Hardware being used to run the bot:
 - Returns URL to a selected user's discord avatar.
 
 `/hardware`
-- Supplies current CPU temperature, clock speed and if the CPU is throttling.
+- Supplies current CPU temperature, CPU-arm clock, GPU-core (2D) clock, GPU-v3d (3D) clock speed and if the Pi is throttling.
 
 `/ping` & `/pong`
 - Ping or Pongs!
@@ -40,11 +43,10 @@ Hardware being used to run the bot:
 - [x] Add `/hardware` for hardware monitoring, `/uptime`, and latency to `/ping` & `/pong`
 - [x] Add `/avatar` as a meme function, also allows for quick access to Warp logo.
 - [x] Update all references to Gemini™ to mention trademark!
-- [x] Add prompt screening to prevent bot misuse.
 - [x] Use `google-genai` instead of `google-generativeai`
-- [ ] Add voltage and GPU temp / voltage to `/hardware`.
+- [x] Make uptime use discord's support of `<t:[UNIX TIMESTAMP]:R>` to show that something is `[some amount of time] ago` instead of the use of `time` for `/uptime` so far.
+- [x] Add GPU clocks to `/hardware`.
 - [ ] Add finance tracking.
-- [ ] Make uptime use discord's support of `<t:[UNIX TIMESTAMP]:R>` to show that something is `[some amount of time] ago` instead of the use of `time` for `/uptime` so far.
 - [ ] Research how `google-genai` handles API errors and make the bot display them better, instead of discord showing a "application not responding" error.
 
 Gemini™ is a trademark of Google LLC.
