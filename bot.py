@@ -19,13 +19,12 @@ from vcgencmd import Vcgencmd                   # Hardware Monitoring
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-ffmpeg_path = r"C:\ffmpeg\bin\ffmpeg.exe"
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 warp_system_instruction = "You are an AI Helper discord bot created by the F1 in Schools (now called STEM Racing) competition team Warp Racing. Warp Racing consists of a team of boys from St. Olave's Grammar School in Orpington, Kent, UK. They won the Lenovo F1 in Schools National Finals (Development Class) in March 2024, gaining the awards of \"1st Place (National Dev. Class Champions)\", \"Fastest Car\", \"Best Engineered Car\" and \"Research and Development\". The user querying you is a discord user, and you are to help them with their task or provide information. Your responses may occasionally be used in a voice channel via text-to-speech."
 intents = discord.Intents().all()
 
-bot = commands.Bot(command_prefix='!', intents=intents, activity=discord.Game(name='WarpGame'))
+bot = commands.Bot(command_prefix='!', intents=intents, activity=discord.Game(name='WarpGame'), help_command=None)
 
 startup_time = None
 
@@ -41,6 +40,11 @@ async def on_ready():
         print(e)
 
 ########## GENERAL COMMANDS ##########
+
+# Respond with Command List
+@bot.tree.command(name='help')
+async def help(interaction: discord.Interaction):
+    await interaction.response.send_message(f"**Commands List**\n\n`/help`\n- Provides some help (a command list for this bot).\n\n`/about`\n- Provides some information about the Bot and its origins/capabilities.\n\n`/ask`\n- Ask WarpBot anything (sensible)! If in a voice channel, a UI will be shown where you can opt to have it read it aloud to you.\n\n`/avatar`\n- Returns URL to a selected user's discord avatar.\n\n`/hardware`\n- Supplies current CPU temperature, CPU-arm clock, GPU-core (2D) clock, GPU-v3d (3D) clock speed and if the Pi is throttling.\n\n`/ping` & `/pong`\n- Ping or Pongs!\n\n`/uptime`\n- Tells you how long the bot has had a continous uptime! The Pi however, never turns off...", ephemeral=True)
 
 # Respond with Pong + Round Trip Latency
 @bot.tree.command(name='ping')
@@ -70,24 +74,17 @@ async def about(interaction: discord.Interaction):
 async def hardware(interaction: discord.Interaction):
     vcgm = Vcgencmd()
     temp = vcgm.measure_temp()
-    clock = int(vcgm.measure_clock('arm')/1000000)
+    clock_arm = int(vcgm.measure_clock('arm')/1000000)
+    clock_core = int(vcgm.measure_clock('core')/1000000)
+    clock_v3d = int(vcgm.measure_clock('v3d')/1000000)
     throttled = vcgm.get_throttled()['breakdown']['2']
-    await interaction.response.send_message(f"This Bot is running on a **Raspberry Pi 5 8GB with 512GB of SSD Storage**.\n\n*Current Hardware Info:*\nTemperature: `{temp}C`\nClock: `{clock}MHz`\nThrottled: `{throttled}`", ephemeral=True)
+    await interaction.response.send_message(f"This Bot is running on a **Raspberry Pi 5 8GB with 512GB of SSD Storage**.\n\n*Current Hardware Info:*\nTemperature: `{temp}C`\nClock (CPU-arm, GPU-core, GPU-v3d): `{clock_arm}Mhz`, `{clock_core}MHz`, `{clock_v3d}MHz`\nThrottled: `{throttled}`", ephemeral=True)
 
 # Uptime Information
 @bot.tree.command(name='uptime')
 async def uptime(interaction: discord.Interaction):
     if startup_time:
-        uptime_seconds = int(time.time() - startup_time)
-        
-        days = uptime_seconds // 86400
-        hours = (uptime_seconds % 86400) // 3600
-        minutes = (uptime_seconds % 3600) // 60
-        seconds = uptime_seconds % 60
-        
-        uptime_str = f"{days} days, {hours} hours, {minutes} minutes, and {seconds} seconds"
-        
-        await interaction.response.send_message(f"Bot uptime: {uptime_str}", ephemeral=True)
+        await interaction.response.send_message(f"Bot started <t:{int(startup_time)}:R>.", ephemeral=True)
     else:
         await interaction.response.send_message("Uptime could not be determined.", ephemeral=True)
 
@@ -119,24 +116,6 @@ async def ask(interaction: discord.Interaction, query: str):
                 config=types.GenerateContentConfig(
                     max_output_tokens=600,
                     temperature=1,
-                    safety_settings=[
-                        types.SafetySetting(
-                            category="HARM_CATEGORY_HARASSMENT",
-                            threshold="BLOCK_MEDIUM_AND_ABOVE",  # Block some
-                        ),
-                        types.SafetySetting(
-                            category="HARM_CATEGORY_HATE_SPEECH",
-                            threshold="BLOCK_MEDIUM_AND_ABOVE",  # Block some
-                        ),
-                        types.SafetySetting(
-                            category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                            threshold="BLOCK_LOW_AND_ABOVE",  # Block most
-                        ),
-                        types.SafetySetting(
-                            category="HARM_CATEGORY_DANGEROUS_CONTENT",
-                            threshold="BLOCK_MEDIUM_AND_ABOVE",  # Block some
-                        ),
-                    ],
                     response_mime_type="text/plain",
                     system_instruction=warp_system_instruction
                 )
