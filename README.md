@@ -10,7 +10,7 @@ There are a few dependencies for `bot.py`, mainly `gTTS`, `google-genai`, `disco
 
 Similarly, `ffmpeg` is a requirement for the `Voice + Text` feature. I installed `ffmpeg` (Raspberry Pi OS) using `sudo apt install -y ffmpeg`.
 
-Run as a python file, and dont forget to fill out your `.env` (a template is provided) with the `DISCORD_TOKEN` and `GEMINI_API_KEY`!. A python virtual environment for installation and execution is recommended. 😄
+Run as a python file, and dont forget to fill out your `.env` (a template is provided) with the `DISCORD_BOT_TOKEN` and `GEMINI_API_KEY`!. A python virtual environment for installation and execution is recommended. 😄
 
 ## Hardware
 Hardware being used to run the bot:
