@@ -8,6 +8,8 @@ from google import genai                        # Google Gemini
 from google.genai import types                  # Google Gemini
 from gtts import gTTS                           # Google Text-To-Speech
 
+import safeguard                                # Harmful content detection
+
 import os
 from dotenv import load_dotenv
 import time
@@ -139,6 +141,12 @@ async def ask(interaction: discord.Interaction, query: str):
                 
                 await sent_message.edit(content=current_response)
             
+            ########## CONTENT SCAN ##########
+
+            if safeguard.scan_content(current_response):
+                await sent_message.edit(content="Unsafe content was generated. Safeguard has **blocked** this content.")
+                is_voice = False
+
             ########## VOICE GENERATION ##########
 
             if is_voice:
