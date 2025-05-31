@@ -2,9 +2,11 @@
 A repository used for development of the experimental WarpBot AI-powered Discord Bot.
 
 ## Dependencies / Install
-This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what it runs on. The use of a python virtual environment is highly recommended. I made a shell script (named `start_warpbot.sh`) that I use to quickly startup the bot, which involves moving to the correct directiory, activating the virtual environment and starting `bot.py`.
+This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what hardware it runs on. The use of a python virtual environment is highly recommended. I made a shell script (named `start_warpbot.sh`) that I use to quickly startup the bot, which involves moving to the correct directiory, activating the virtual environment and starting `bot.py`.
 
-There are a few dependencies, mainly `gTTS`, `google-genai`, `discord`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
+There are a few dependencies for `bot.py`, mainly `gTTS`, `google-genai`, `discord`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
+
+`safeguard.py` however, uses `detoxify`. This is again installed in the same way as above - `pip install [name here]`.
 
 Similarly, `ffmpeg` is a requirement for the `Voice + Text` feature. I installed `ffmpeg` (Raspberry Pi OS) using `sudo apt install -y ffmpeg`.
 
@@ -46,6 +48,7 @@ Hardware being used to run the bot:
 - [x] Use `google-genai` instead of `google-generativeai`
 - [x] Make uptime use discord's support of `<t:[UNIX TIMESTAMP]:R>` to show that something is `[some amount of time] ago` instead of the use of `time` for `/uptime` so far.
 - [x] Add GPU clocks to `/hardware`.
+- [x] Add high-accuracy harmful content detection and removal. 
 - [ ] Add finance tracking.
 - [ ] Research how `google-genai` handles API errors and make the bot display them better, instead of discord showing a "application not responding" error.
 
