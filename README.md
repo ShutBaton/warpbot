@@ -50,6 +50,6 @@ Hardware being used to run the bot:
 - [x] Add GPU clocks to `/hardware`.
 - [x] Add high-accuracy harmful content detection and removal. 
 - [ ] Add finance tracking.
-- [ ] Research how `google-genai` handles API errors and make the bot display them better, instead of discord showing a "application not responding" error.
+- [ ] Research how `google-genai` handles API errors and make the bot display them better, instead of discord showing an "application not responding" error.
 
 Gemini™ is a trademark of Google LLC.
