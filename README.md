@@ -6,7 +6,7 @@ This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - prov
 
 There are a few dependencies for `bot.py`, mainly `gTTS`, `google-genai`, `discord`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
 
-`safeguard.py` however, uses `detoxify`. This is again installed in the same way as above - `pip install [name here]`.
+`safeguard.py` however, uses `detoxify`. This is again installed in the same way as above - `pip install [module name here]`.
 
 Similarly, `ffmpeg` is a requirement for the `Voice + Text` feature. I installed `ffmpeg` (Raspberry Pi OS) using `sudo apt install -y ffmpeg`.
 
