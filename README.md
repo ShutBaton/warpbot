@@ -1,7 +1,7 @@
 # WarpBot
 A repository used for development of the experimental WarpBot AI-powered Discord Bot.
 
-## Dependancies
+## Dependencies
 There are a few, mainly `gTTS`, `google-generativeai`, `discord`, `asyncio`, `vcgencmd` and `dotenv`. I'm sure you can figure out what to install and how to do this (just `pip install` those listed and you *should* be fine). Besides, this code is designed for specific hardware.
 
 ## Usage
