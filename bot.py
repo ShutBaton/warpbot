@@ -171,6 +171,10 @@ async def ask(interaction: discord.Interaction, query: str):
 
         await interaction.response.defer(thinking=True)
 
+        if safeguard.scan_content(query):
+            await interaction.followup.send(content="Unsafe content was queried. Safeguard has **blocked** this query from being generated.", ephemeral=True)
+            return
+
         is_voice = False
 
         if interaction.user.voice:
