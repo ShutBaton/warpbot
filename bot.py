@@ -113,6 +113,8 @@ async def ask(interaction: discord.Interaction, query: str):
 
                 ########## TEXT GENERATION ##########
 
+                sent_message = await interaction.followup.send("Generating...")
+
                 response = client.models.generate_content_stream(
                     model="gemini-2.0-flash",
                     contents=f"{interaction.user.mention}'s query: {query}",
@@ -123,8 +125,6 @@ async def ask(interaction: discord.Interaction, query: str):
                         system_instruction=warp_system_instruction
                     )
                 )
-
-                sent_message = await interaction.followup.send("Generating...")
 
                 current_response = ""
 
@@ -144,7 +144,7 @@ async def ask(interaction: discord.Interaction, query: str):
 
             except errors.APIError as e:
                 print(f"API Error: {str(e)}")
-                await interaction.followup.send(f"An error occurred while generating the response. Please try again later.\n\n{e.code}: {e.message}")
+                await sent_message.edit(content=f"An error occurred while generating the response. Please try again later.\n\n{e.code}: {e.message}")
 
             try:
 
