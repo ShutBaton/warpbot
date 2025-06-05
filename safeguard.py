@@ -37,7 +37,6 @@ banned_vocabulary = [
     r'(?<!\w)r[a4]pe(?!\w)',
 ]
 
-
 def keyword_match(text: str) -> bool:
     for pattern in banned_vocabulary:
         if re.search(pattern, text, re.IGNORECASE):
