@@ -5,7 +5,7 @@ from discord.ext import commands                # Discord
 from discord.voice_client import VoiceClient    # Discord
 from discord.ui import View, Button             # Discord
 from google import genai                        # Google Gemini
-from google.genai import types                  # Google Gemini
+from google.genai import types, errors          # Google Gemini
 from gtts import gTTS                           # Google Text-To-Speech
 
 import safeguard                                # Harmful content detection
@@ -109,63 +109,74 @@ async def ask(interaction: discord.Interaction, query: str):
         ########## RESPONSE LOGIC ##########
 
         async def respond(is_voice):
+            try:
 
-            ########## TEXT GENERATION ##########
+                ########## TEXT GENERATION ##########
 
-            response = client.models.generate_content_stream(
-                model="gemini-2.0-flash",
-                contents=f"{interaction.user.mention}'s query: {query}",
-                config=types.GenerateContentConfig(
-                    max_output_tokens=600,
-                    temperature=1,
-                    response_mime_type="text/plain",
-                    system_instruction=warp_system_instruction
+                response = client.models.generate_content_stream(
+                    model="gemini-2.0-flash",
+                    contents=f"{interaction.user.mention}'s query: {query}",
+                    config=types.GenerateContentConfig(
+                        max_output_tokens=600,
+                        temperature=1,
+                        response_mime_type="text/plain",
+                        system_instruction=warp_system_instruction
+                    )
                 )
-            )
 
-            sent_message = await interaction.followup.send("Generating...")
+                sent_message = await interaction.followup.send("Generating...")
 
-            current_response = ""
+                current_response = ""
 
-            for chunk in response:
-                current_response += chunk.text
-                
-                if len(current_response) >= 2000:
-                    if is_voice:
-                        await interaction.followup.send("WarpBot's Response is too large for Discord's character count. The message has been truncated and **verbal is unavailable**.")
-                        is_voice = False
-                    else:
-                        await interaction.followup.send("WarpBot's Response is too large for Discord's character count. The message has been truncated.")
-                    await sent_message.edit(content=current_response[:2000])
-                    break
-                
-                await sent_message.edit(content=current_response)
-            
-            ########## CONTENT SCAN ##########
+                for chunk in response:
+                    current_response += chunk.text
+                    
+                    if len(current_response) >= 2000:
+                        if is_voice:
+                            await interaction.followup.send("WarpBot's Response is too large for Discord's character count. The message has been truncated and **verbal is unavailable**.")
+                            is_voice = False
+                        else:
+                            await interaction.followup.send("WarpBot's Response is too large for Discord's character count. The message has been truncated.")
+                        await sent_message.edit(content=current_response[:2000])
+                        break
+                    
+                    await sent_message.edit(content=current_response)
 
-            if safeguard.scan_content(current_response):
-                await sent_message.edit(content="Unsafe content was generated. Safeguard has **blocked** this content.")
-                is_voice = False
+            except errors.APIError as e:
+                print(f"API Error: {str(e)}")
+                await interaction.followup.send(f"An error occurred while generating the response. Please try again later.\n\n{e.code}: {e.message}")
 
-            ########## VOICE GENERATION ##########
+            try:
 
-            if is_voice:
-                speech = gTTS(text=current_response, lang="en", slow=False)
-                speech.save("ask_voice_temp.mp3")
-                
-                if interaction.guild.voice_client:
-                    await interaction.guild.voice_client.disconnect(force=True)
-                
-                voice_channel = interaction.user.voice.channel
-                connected_voice_channel = await voice_channel.connect()
-                
-                audio_source = discord.FFmpegPCMAudio("ask_voice_temp.mp3")
-                
-                def after_playback(error):
-                    coro = connected_voice_channel.disconnect()
-                    asyncio.run_coroutine_threadsafe(coro, bot.loop)
-                
-                connected_voice_channel.play(audio_source, after=after_playback)
+                ########## CONTENT SCAN ##########
+
+                if safeguard.scan_content(current_response):
+                    await sent_message.edit(content="Unsafe content was generated. Safeguard has **blocked** this content.")
+                    is_voice = False
+
+                ########## VOICE GENERATION ##########
+
+                if is_voice:
+                    speech = gTTS(text=current_response, lang="en", slow=False)
+                    speech.save("ask_voice_temp.mp3")
+                    
+                    if interaction.guild.voice_client:
+                        await interaction.guild.voice_client.disconnect(force=True)
+                    
+                    voice_channel = interaction.user.voice.channel
+                    connected_voice_channel = await voice_channel.connect()
+                    
+                    audio_source = discord.FFmpegPCMAudio("ask_voice_temp.mp3")
+                    
+                    def after_playback(error):
+                        coro = connected_voice_channel.disconnect()
+                        asyncio.run_coroutine_threadsafe(coro, bot.loop)
+                    
+                    connected_voice_channel.play(audio_source, after=after_playback)
+
+            except Exception as e:
+                print(f"An error occurred while handling the response: {str(e)}")
+                await interaction.followup.send("An error occurred while handling the response. Please try again later.")
 
         ########## UI LOGIC ##########
 
@@ -174,8 +185,10 @@ async def ask(interaction: discord.Interaction, query: str):
         if safeguard.scan_content(query):
             await interaction.followup.send(content="Unsafe content was queried. Safeguard has **blocked** this query from being generated.", ephemeral=True)
             return
-
-        is_voice = False
+        
+        if len(query) > 150:
+            await interaction.followup.send(content="This query is too long (max. 250 characters). Safeguard has **blocked** this query from being generated.", ephemeral=True)
+            return
 
         if interaction.user.voice:
             button_message = None
@@ -184,31 +197,37 @@ async def ask(interaction: discord.Interaction, query: str):
 
             button_verbal = Button(label="Verbal + Text", style=discord.ButtonStyle.primary)
             async def button_verbal_callback(button_interaction: discord.Interaction):
-                if button_interaction.user.id != interaction.user.id:
-                    await button_interaction.response.send_message("You cannot interact with this button.", ephemeral=True)
-                    return
+                try:
+                    if button_interaction.user.id != interaction.user.id:
+                        await button_interaction.response.send_message("You cannot interact with this button.", ephemeral=True)
+                        return
 
-                for item in view.children:
-                    item.disabled = True
-                await button_message.edit(content="I noticed you are in a voice channel. Decision recieved.", view=view)
+                    for item in view.children:
+                        item.disabled = True
+                    await button_message.edit(content="I noticed you are in a voice channel. Decision recieved.", view=view)
 
-                await button_interaction.response.defer()
-                await respond(True)
+                    await button_interaction.response.defer()
+                    await respond(True)
+                except Exception as e:
+                    print(f"An error occurred: {str(e)}")
             button_verbal.callback = button_verbal_callback
             view.add_item(button_verbal)
 
             button_text = Button(label="Text Only", style=discord.ButtonStyle.secondary)
             async def button_text_callback(button_interaction: discord.Interaction):
-                if button_interaction.user.id != interaction.user.id:
-                    await button_interaction.response.send_message("You cannot interact with this button.", ephemeral=True)
-                    return
+                try:
+                    if button_interaction.user.id != interaction.user.id:
+                        await button_interaction.response.send_message("You cannot interact with this button.", ephemeral=True)
+                        return
 
-                for item in view.children:
-                    item.disabled = True
-                await button_message.edit(content="I noticed you are in a voice channel. Decision recieved.", view=view)
+                    for item in view.children:
+                        item.disabled = True
+                    await button_message.edit(content="I noticed you are in a voice channel. Decision recieved.", view=view)
 
-                await button_interaction.response.defer()
-                await respond(False)
+                    await button_interaction.response.defer()
+                    await respond(False)
+                except Exception as e:
+                    print(f"An error occurred: {str(e)}")
             button_text.callback = button_text_callback
             view.add_item(button_text)
 
@@ -221,6 +240,6 @@ async def ask(interaction: discord.Interaction, query: str):
             await respond(False)
 
     except Exception as e:
-        await interaction.response.send_message(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {str(e)}")
 
 bot.run(TOKEN)
