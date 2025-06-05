@@ -181,13 +181,13 @@ async def ask(interaction: discord.Interaction, query: str):
         ########## UI LOGIC ##########
 
         await interaction.response.defer(thinking=True)
-
-        if safeguard.scan_content(query):
-            await interaction.followup.send(content="Unsafe content was queried. Safeguard has **blocked** this query from being generated.", ephemeral=True)
-            return
         
         if len(query) > 150:
-            await interaction.followup.send(content="This query is too long (max. 250 characters). Safeguard has **blocked** this query from being generated.", ephemeral=True)
+            await interaction.followup.send(content="This query is too long (max. 250 characters). Safeguard has **blocked** this query from being generated.")
+            return
+
+        if safeguard.scan_content(query):
+            await interaction.followup.send(content="Unsafe content was queried. Safeguard has **blocked** this query from being generated.")
             return
 
         if interaction.user.voice:
