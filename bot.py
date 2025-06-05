@@ -182,7 +182,7 @@ async def ask(interaction: discord.Interaction, query: str):
 
         await interaction.response.defer(thinking=True)
         
-        if len(query) > 150:
+        if len(query) > 250:
             await interaction.followup.send(content="This query is too long (max. 250 characters). Safeguard has **blocked** this query from being generated.")
             return
 
