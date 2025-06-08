@@ -50,8 +50,7 @@ Hardware being used to run the bot:
 - [x] Add GPU clocks to `/hardware`.
 - [x] Add high-accuracy harmful content detection and removal.
 - [x] Research how `google-genai` handles API errors and make the bot display them better, instead of discord showing an "application not responding" error.
-- [ ] Tell the bot to give more concise answers, more like a chatbot.
-- [ ] Make the bot use url-context from a plaintext page on the [Warp Racing website](https://warp-racing.com). Refer to [this](https://ai.google.dev/gemini-api/docs/url-context) article.
-- [ ] Add finance tracking.
+- [ ] Tell the bot to give more concise answers, more like a chatbot. When extended answers are given, try to make it split between multiple messages instead of truncating.
+- [ ] Make the bot ground to own provided context files as part of an optional argument for levels of knowledge about Warp.
 
 Gemini™ is a trademark of Google LLC.
