@@ -50,7 +50,8 @@ Hardware being used to run the bot:
 - [x] Add GPU clocks to `/hardware`.
 - [x] Add high-accuracy harmful content detection and removal.
 - [x] Research how `google-genai` handles API errors and make the bot display them better, instead of discord showing an "application not responding" error.
-- [ ] Tell the bot to give more concise answers, more like a chatbot. When extended answers are given, try to make it split between multiple messages instead of truncating.
-- [ ] Make the bot ground to own provided context files as part of an optional argument for levels of knowledge about Warp.
+- [x] Make the bot ground to own provided context files as part of an optional argument for levels of knowledge about Warp.
+- [ ] (Needs more thought before implementation) Tell the bot to give more concise answers, more like a chatbot. When extended answers are given, try to make it split between multiple messages instead of truncating.
+- [ ] (Needs research to see if it is possible to do simply and securely) Allow for uploading of 1 extra file for analysis from the AI.
 
 Gemini™ is a trademark of Google LLC.
