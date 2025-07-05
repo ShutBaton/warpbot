@@ -1,31 +1,58 @@
+print("Loading imports... ", end="")
 import asyncio
 import discord                                  # Discord
 from discord import app_commands                # Discord
 from discord.ext import commands                # Discord
 from discord.voice_client import VoiceClient    # Discord
 from discord.ui import View, Button             # Discord
+import typing                                   # Type Hints
 from google import genai                        # Google Gemini
 from google.genai import types, errors          # Google Gemini
+import pathlib                                  # Object Oriented Paths
+import httpx                                    # HTTP Client
 from gtts import gTTS                           # Google Text-To-Speech
-
 import safeguard                                # Harmful content detection
-
 import os
 from dotenv import load_dotenv
 import time
-
 from vcgencmd import Vcgencmd                   # Hardware Monitoring
+print("Done")
 
 ########## SETUP ##########
 
+print("Loading API Keys... ", end="")
 load_dotenv()
-
 TOKEN = os.getenv("DISCORD_TOKEN")
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+print("Done")
 
+print("Loading Basic Context... ", end="")
+team_ctx_path = pathlib.Path(os.getenv("TEAM_CTX_PATH"))
+team_ctx = types.Part.from_bytes(
+    data=team_ctx_path.read_bytes(),
+    mime_type='text/plain',
+)
+print("Done")
+
+print("Loading DesEng Context... ", end="")
+deseng_ctx_path = pathlib.Path(os.getenv("DESENG_CTX_PATH"))
+deseng_ctx = types.Part.from_bytes(
+    data=deseng_ctx_path.read_bytes(),
+    mime_type='application/pdf',
+)
+print("Done")
+
+print("Loading Enterprise Context... ", end="")
+enterprise_ctx_path = pathlib.Path(os.getenv("ENTERPRISE_CTX_PATH"))
+enterprise_ctx = types.Part.from_bytes(
+    data=enterprise_ctx_path.read_bytes(),
+    mime_type='application/pdf',
+)
+print("Done")
+
+print("Loading Discord Client... ", end="")
 warp_system_instruction = "You are an AI Helper discord bot created by the F1 in Schools (now called STEM Racing) competition team Warp Racing. Warp Racing consists of a team of boys from St. Olave's Grammar School in Orpington, Kent, UK. They won the Lenovo F1 in Schools National Finals (Development Class) in March 2024, gaining the awards of \"1st Place (National Dev. Class Champions)\", \"Fastest Car\", \"Best Engineered Car\" and \"Research and Development\". The user querying you is a discord user, and you are to help them with their task or provide information. Your responses may occasionally be used in a voice channel via text-to-speech."
 intents = discord.Intents().all()
-
 bot = commands.Bot(command_prefix='!', intents=intents, activity=discord.Game(name='WarpGame'), help_command=None)
 
 startup_time = None
@@ -64,9 +91,10 @@ async def pong(interaction: discord.Interaction):
 @bot.tree.command(name='about')
 async def about(interaction: discord.Interaction):
     view = discord.ui.View()
-    view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="warp-racing.com", url="https://warp-racing.com"))
+    view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Warp Racing website", url="https://warp-racing.com"))
+    view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Donate to Warp!", url="https://www.gofundme.com/f/warp-racing"))
     await interaction.response.send_message(
-        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing and powered by the Google Geminiâ¢ 2.0 Flash Large Language Model. I am multilingual and have knowledge of events up to **August 2024**.\n*Please note that each `/ask` command is individual, and does not include previous context.*\n\nGeminiâ¢ is a trademark of Google LLC.",
+        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing using the Google Geminiâ¢ 2.0 Flash Large Language Model. I am multilingual and have knowledge of events up to **August 2024**.\n*Please note that each `/ask` command is individual, and does not include previous context.*\n\nGeminiâ¢ is a trademark of Google LLC.",
         ephemeral=True,
         view=view
     )
@@ -102,8 +130,14 @@ async def avatar(interaction: discord.Interaction, user: discord.User = None):
 ########## ASK COMMAND ##########
 
 @bot.tree.command(name='ask')
+@app_commands.describe(context="Decide if WarpBot is to respond using Warp Context material")
+@app_commands.choices(context = [
+    app_commands.Choice(name="None",value="none"),
+    app_commands.Choice(name="Basic Context",value="basic"),
+    app_commands.Choice(name="Full (Portfolio) Context",value="full")
+])
 @app_commands.describe(query = "What do you want to know?")
-async def ask(interaction: discord.Interaction, query: str):
+async def ask(interaction: discord.Interaction, query: str, context: typing.Optional[app_commands.Choice[str]]):
     try:
 
         ########## RESPONSE LOGIC ##########
@@ -112,15 +146,28 @@ async def ask(interaction: discord.Interaction, query: str):
             try:
 
                 ########## TEXT GENERATION ##########
+                
+                context_value = context.value if context else "basic"
+
+                text_prompt = f"{interaction.user.mention}'s query: {query}"
+                API_prompt = [text_prompt]
+
+                if context_value == "basic":
+                    API_prompt.append(team_ctx)
+                
+                elif context_value == "full":
+                    API_prompt.append(team_ctx)
+                    API_prompt.append(deseng_ctx)
+                    API_prompt.append(enterprise_ctx)
 
                 sent_message = await interaction.followup.send("Generating...")
 
                 response = client.models.generate_content_stream(
                     model="gemini-2.0-flash",
-                    contents=f"{interaction.user.mention}'s query: {query}",
+                    contents=API_prompt,
                     config=types.GenerateContentConfig(
                         max_output_tokens=600,
-                        temperature=1,
+                        temperature=0.3,
                         response_mime_type="text/plain",
                         system_instruction=warp_system_instruction
                     )
@@ -132,11 +179,13 @@ async def ask(interaction: discord.Interaction, query: str):
                     current_response += chunk.text
                     
                     if len(current_response) >= 2000:
+                        view = discord.ui.View()
+                        view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Donate to Warp!", url="https://www.gofundme.com/f/warp-racing"))
                         if is_voice:
-                            await interaction.followup.send("WarpBot's Response is too large for Discord's character count. The message has been truncated and **verbal is unavailable**.")
+                            await interaction.followup.send("WarpBot's response is too large for Discord's character count. The message has been truncated and **verbal is unavailable**.\n\nConsider donating to support Warp's jouney and fund WarpBot:", view=view)
                             is_voice = False
                         else:
-                            await interaction.followup.send("WarpBot's Response is too large for Discord's character count. The message has been truncated.")
+                            await interaction.followup.send("WarpBot's response is too large for Discord's character count. The message has been truncated.\n\nConsider donating to support Warp's jouney and fund WarpBot:", view=view)
                         await sent_message.edit(content=current_response[:2000])
                         break
                     
@@ -182,8 +231,8 @@ async def ask(interaction: discord.Interaction, query: str):
 
         await interaction.response.defer(thinking=True)
         
-        if len(query) > 250:
-            await interaction.followup.send(content="This query is too long (max. 250 characters). Safeguard has **blocked** this query from being generated.")
+        if len(query) > 500:
+            await interaction.followup.send(content="This query is too long (max. 500 characters). Safeguard has **blocked** this query from being generated.")
             return
 
         if safeguard.scan_content(query):
@@ -242,4 +291,5 @@ async def ask(interaction: discord.Interaction, query: str):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
+print("Done")
 bot.run(TOKEN)
