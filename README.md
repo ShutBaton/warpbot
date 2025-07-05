@@ -53,5 +53,6 @@ Hardware being used to run the bot:
 - [x] Make the bot ground to own provided context files as part of an optional argument for levels of knowledge about Warp.
 - [ ] (Needs more thought before implementation) Tell the bot to give more concise answers, more like a chatbot. When extended answers are given, try to make it split between multiple messages instead of truncating.
 - [ ] (Needs research to see if it is possible to do simply and securely) Allow for uploading of 1 extra file for analysis from the AI.
+- [ ] Use Gemini Voice Generation for TTS instead of regular Google TTS.
 
 Gemini™ is a trademark of Google LLC.
