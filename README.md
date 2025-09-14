@@ -58,8 +58,10 @@ Hardware being used to run the bot:
 - [ ] (Needs more thought before implementation) Tell the bot to give more concise answers, more like a chatbot. When extended answers are given, try to make it split between multiple messages instead of truncating.
 - [ ] (Needs research to see if it is possible to do simply and securely) Allow for uploading of 1 extra file for analysis from the AI.
 - [ ] Hide portfolio context behind "Pro".
-- [ ] Make use of embeds (looks more polished + 6k max char count instead of 2k with a regular message)
+- [ ] Make use of embeds (looks more polished + 6k max char count instead of 2k with a regular message).
 - [ ] Move entire ask command into a modal?
+- [ ] When using a reasoning model, show the rolling thinking summaries.
+- [ ] Have ask command responses be in a thread?
 
 ## [Legal Attribution](https://about.google/brand-resource-center/guidance/apis/#legal-attribution)
 Gemini™ is a trademark of Google LLC.
