@@ -1,5 +1,5 @@
 # WarpBot
-A repository used for development of the experimental WarpBot AI-powered Discord Bot.
+A repository used for development of the experimental WarpBot AI-powered Discord Bot using [Google Gemini™](https://gemini.google.com/) LLMs & LRMs.
 
 ## Dependencies / Install
 This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what hardware it runs on. The use of a python virtual environment is highly recommended. I made a shell script (named `start_warpbot.sh`) that I use to quickly startup the bot, which involves moving to the correct directiory, activating the virtual environment and starting `bot.py`.
@@ -53,12 +53,13 @@ Hardware being used to run the bot:
 - [x] Add high-accuracy harmful content detection and removal.
 - [x] Research how `google-genai` handles API errors and make the bot display them better, instead of discord showing an "application not responding" error.
 - [x] Make the bot ground to own provided context files as part of an optional argument for levels of knowledge about Warp.
-- [x] Use Gemini Voice Generation for TTS instead of regular Google TTS.
-- [x] Add "Pro" users that are allowed to pick which Gemini™ model they want to use, and have access to Gemini Voice Generation.
+- [x] Use Gemini™ Voice Generation for TTS instead of regular Google TTS.
+- [x] Add "Pro" users that are allowed to pick which Gemini™ model they want to use, and have access to Gemini™ Voice Generation.
 - [ ] (Needs more thought before implementation) Tell the bot to give more concise answers, more like a chatbot. When extended answers are given, try to make it split between multiple messages instead of truncating.
 - [ ] (Needs research to see if it is possible to do simply and securely) Allow for uploading of 1 extra file for analysis from the AI.
 - [ ] Hide portfolio context behind "Pro".
 - [ ] Make use of embeds (looks more polished + 6k max char count instead of 2k with a regular message)
 - [ ] Move entire ask command into a modal?
 
+## [Legal Attribution](https://about.google/brand-resource-center/guidance/apis/#legal-attribution)
 Gemini™ is a trademark of Google LLC.
