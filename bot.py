@@ -9,7 +9,7 @@ import typing                                   # Type Hints
 from google import genai                        # Google Gemini
 from google.genai import types, errors          # Google Gemini
 import pathlib                                  # Object Oriented Paths
-import httpx                                    # HTTP Client
+import wave                                     # Saving .wav files
 from gtts import gTTS                           # Google Text-To-Speech
 import safeguard                                # Harmful content detection
 import os
@@ -50,8 +50,22 @@ enterprise_ctx = types.Part.from_bytes(
 )
 print("Done")
 
+print("Loading .wav file functions... ", end="")
+def wave_file(filename, pcm, channels=1, rate=24000, sample_width=2):
+   with wave.open(filename, "wb") as wf:
+      wf.setnchannels(channels)
+      wf.setsampwidth(sample_width)
+      wf.setframerate(rate)
+      wf.writeframes(pcm)
+print("Done")
+
+print("Loading Pro Userlist... ", end="")
+with open("pro_userlist.csv", "r") as f:
+    pro_user_ids = f.read().strip().split(",")
+print("Done")
+
 print("Loading Discord Client... ", end="")
-warp_system_instruction = "You are an AI Helper discord bot created by the F1 in Schools (now called STEM Racing) competition team Warp Racing. Warp Racing consists of a team of boys from St. Olave's Grammar School in Orpington, Kent, UK. They won the Lenovo F1 in Schools National Finals (Development Class) in March 2024, gaining the awards of \"1st Place (National Dev. Class Champions)\", \"Fastest Car\", \"Best Engineered Car\" and \"Research and Development\". The user querying you is a discord user, and you are to help them with their task or provide information. Your responses may occasionally be used in a voice channel via text-to-speech."
+warp_system_instruction = "You are an AI Helper discord bot created by the F1 in Schools (now called STEM Racing) competition team Warp Racing. Warp Racing consists of a team of boys from St. Olave's Grammar School in Orpington, Kent, UK. They won the Lenovo F1 in Schools National Finals (Development Class) in March 2024, gaining the awards of \"1st Place (National Dev. Class Champions)\", \"Fastest Car\", \"Best Engineered Car\" and \"Research and Development\". The user querying you is a discord user interested in the team not necessarily affiliated with Warp Racing, and you are to help them with their task or provide information. Your responses may occasionally be used in a voice channel via text-to-speech. Any files attached are not from the user (they are not aware of their existence), but instead contain information so you can give an informed answer."
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix='!', intents=intents, activity=discord.Game(name='WarpGame'), help_command=None)
 
@@ -94,7 +108,7 @@ async def about(interaction: discord.Interaction):
     view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Warp Racing website", url="https://warp-racing.com"))
     view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Donate to Warp!", url="https://www.gofundme.com/f/warp-racing"))
     await interaction.response.send_message(
-        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing using the Google Geminiâ¢ 2.0 Flash Large Language Model. I am multilingual and have knowledge of events up to **August 2024**.\n*Please note that each `/ask` command is individual, and does not include previous context.*\n\nGeminiâ¢ is a trademark of Google LLC.",
+        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing using the Google Geminiâ¢ 2.5 Flash Large Language Model. I have knowledge of events up to **January 2025**, and scan all inputted queries and generated results for toxicity using Warp's Safeguard system.\n*Please note that each `/ask` command is individual, and does not include previous context.*\n\nGeminiâ¢ is a trademark of Google LLC.",
         ephemeral=True,
         view=view
     )
@@ -108,7 +122,7 @@ async def hardware(interaction: discord.Interaction):
     clock_core = int(vcgm.measure_clock('core')/1000000)
     clock_v3d = int(vcgm.measure_clock('v3d')/1000000)
     throttled = vcgm.get_throttled()['breakdown']['2']
-    await interaction.response.send_message(f"This Bot is running on a **Raspberry Pi 5 8GB with 512GB of SSD Storage**.\n\n*Current Hardware Info:*\nTemperature: `{temp}C`\nClock (CPU-arm, GPU-core, GPU-v3d): `{clock_arm}Mhz`, `{clock_core}MHz`, `{clock_v3d}MHz`\nThrottled: `{throttled}`", ephemeral=True)
+    await interaction.response.send_message(f"WarpBot is running on a **Raspberry Pi 5 8GB with 512GB of M.2 NVMe SSD Storage**.\n\n*Current Hardware Info:*\nTemperature: `{temp}C`\nClock (CPU-arm, GPU-core, GPU-v3d): `{clock_arm}Mhz`, `{clock_core}MHz`, `{clock_v3d}MHz`\nThrottled: `{throttled}`", ephemeral=True)
 
 # Uptime Information
 @bot.tree.command(name='uptime')
@@ -142,7 +156,7 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
         ########## RESPONSE LOGIC ##########
 
-        async def respond(is_voice):
+        async def respond(is_voice, advanced_voice):
             try:
 
                 ########## TEXT GENERATION ##########
@@ -160,13 +174,72 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                     API_prompt.append(deseng_ctx)
                     API_prompt.append(enterprise_ctx)
 
+                model_to_use = "gemini-2.5-flash"
+
+                if str(interaction.user.id) in pro_user_ids:
+                    
+                    class ModelSelectionView(discord.ui.View):
+                        def __init__(self):
+                            super().__init__(timeout=60) # 1 minute timeout
+                            self.model_choice = None
+
+                        @discord.ui.select(
+                            placeholder="Choose a Gemini model to use...",
+                            options=[
+                                discord.SelectOption(
+                                    label="Geminiâ¢ 2.5 Pro",
+                                    value="gemini-2.5-pro",
+                                    description="Google's most powerful reasoning model, for complex reasoning tasks."
+                                ),
+                                discord.SelectOption(
+                                    label="Geminiâ¢ 2.5 Flash",
+                                    value="gemini-2.5-flash",
+                                    description="Google's hybrid reasoning model, with a 1M token context window.",
+                                ),
+                                discord.SelectOption(
+                                    label="Geminiâ¢ 2.5 Flash-Lite",
+                                    value="gemini-2.5-flash-lite",
+                                    description="Google's smallest and most cost effective model, built for at scale usage."
+                                ),
+                                discord.SelectOption(
+                                    label="Geminiâ¢ 2.0 Flash",
+                                    value="gemini-2.0-flash",
+                                    description="Google's most balanced multimodal model with great performance."
+                                ),
+                                discord.SelectOption(
+                                    label="Geminiâ¢ 2.0 Flash-Lite",
+                                    value="gemini-2.0-flash-lite",
+                                    description="Google's smallest and most cost effective model, built for at scale usage."
+                                )
+                            ]
+                        )
+                        async def select_callback(self, select_interaction: discord.Interaction, select: discord.ui.Select):
+                            if select_interaction.user.id != interaction.user.id:
+                                await select_interaction.response.send_message("You are not authorized to use this menu.", ephemeral=True)
+                                return
+
+                            self.model_choice = select.values[0]
+
+                            await select_interaction.response.edit_message(content=f"Model choice (`{self.model_choice}`) confirmed. Generating...",  view=None)
+
+                            self.stop()
+
+                    view = ModelSelectionView()
+                    selection_message = await interaction.followup.send("As a Pro user, you may select a generation model:", view=view)
+                    
+                    timed_out = await view.wait()
+
+                    if timed_out:
+                        await selection_message.edit(content="Model selection timed out. Proceeding with the default model.", view=None)
+                    else:
+                        model_to_use = view.model_choice
+
                 sent_message = await interaction.followup.send("Generating...")
 
                 response = client.models.generate_content_stream(
-                    model="gemini-2.0-flash",
+                    model=model_to_use,
                     contents=API_prompt,
                     config=types.GenerateContentConfig(
-                        max_output_tokens=600,
                         temperature=0.3,
                         response_mime_type="text/plain",
                         system_instruction=warp_system_instruction
@@ -176,8 +249,14 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                 current_response = ""
 
                 for chunk in response:
+                    if not chunk or not chunk.text:
+                        continue
+
                     current_response += chunk.text
                     
+                    if not current_response.strip():
+                        continue
+
                     if len(current_response) >= 2000:
                         view = discord.ui.View()
                         view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Donate to Warp!", url="https://www.gofundme.com/f/warp-racing"))
@@ -190,6 +269,10 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                         break
                     
                     await sent_message.edit(content=current_response)
+                
+                if not current_response.strip():
+                    await sent_message.edit(content="The model returned an empty response!")
+                    is_voice = False
 
             except errors.APIError as e:
                 print(f"API Error: {str(e)}")
@@ -206,25 +289,58 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                 ########## VOICE GENERATION ##########
 
                 if is_voice:
-                    speech = gTTS(text=current_response, lang="en", slow=False)
-                    speech.save("ask_voice_temp.mp3")
+                    voice_status_message = await interaction.followup.send("Generating Voice Files (this can take a up to 20s).")
+                    if advanced_voice:
+                        response = client.models.generate_content(
+                        model="gemini-2.5-flash-preview-tts",
+                        contents=f"Say helpfully: {current_response}",
+                        config=types.GenerateContentConfig(
+                            response_modalities=["AUDIO"],
+                            speech_config=types.SpeechConfig(
+                                voice_config=types.VoiceConfig(
+                                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                                    voice_name='Puck',
+                                    )
+                                )
+                            ),
+                        )
+                        )
+
+                        data = response.candidates[0].content.parts[0].inline_data.data
+
+                        wave_file("temp_audio/ask_voice_gemini.wav", data)
+                    else:
+                        speech = gTTS(text=current_response, slow=False)
+                        speech.save("temp_audio/ask_voice_gTTS.mp3")
                     
+                    await voice_status_message.edit(content="Speaking.")
+
                     if interaction.guild.voice_client:
                         await interaction.guild.voice_client.disconnect(force=True)
+                        await asyncio.sleep(2)
                     
                     voice_channel = interaction.user.voice.channel
+                    
+                    if not voice_channel:
+                        await voice_status_message.edit(content="You need to be in a voice channel for me to speak!")
+                        return
+
                     connected_voice_channel = await voice_channel.connect()
+                    await asyncio.sleep(1)
+
+                    if advanced_voice:
+                        audio_source = discord.FFmpegPCMAudio("temp_audio/ask_voice_gemini.wav")
+                    else:
+                        audio_source = discord.FFmpegPCMAudio("temp_audio/ask_voice_gTTS.mp3")
                     
-                    audio_source = discord.FFmpegPCMAudio("ask_voice_temp.mp3")
-                    
-                    def after_playback(error):
-                        coro = connected_voice_channel.disconnect()
-                        asyncio.run_coroutine_threadsafe(coro, bot.loop)
-                    
-                    connected_voice_channel.play(audio_source, after=after_playback)
+                    connected_voice_channel.play(audio_source)
+
+                    while connected_voice_channel.is_playing():
+                        await asyncio.sleep(0.5)
+                    await voice_status_message.edit(content="Speech Complete.")
+                    await connected_voice_channel.disconnect(force=True)
 
             except Exception as e:
-                print(f"An error occurred while handling the response: {str(e)}")
                 await interaction.followup.send("An error occurred while handling the response. Please try again later.")
 
         ########## UI LOGIC ##########
@@ -244,7 +360,25 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
             view = View(timeout=None)
 
-            button_verbal = Button(label="Verbal + Text", style=discord.ButtonStyle.primary)
+            button_verbal = Button(label="Adv. Verbal", style=discord.ButtonStyle.primary)
+            async def button_verbal_callback(button_interaction: discord.Interaction):
+                try:
+                    if (button_interaction.user.id != interaction.user.id) or (str(button_interaction.user.id) not in pro_user_ids):
+                        await button_interaction.response.send_message("You cannot interact with this button. Only Pro users have access to Adv. Verbal due to the large amount of processing power that is needed.", ephemeral=True)
+                        return
+
+                    for item in view.children:
+                        item.disabled = True
+                    await button_message.edit(content="I noticed you are in a voice channel. Decision recieved (Adv. Voice).", view=view)
+
+                    await button_interaction.response.defer()
+                    await respond(True, True)
+                except Exception as e:
+                    print(f"An error occurred: {str(e)}")
+            button_verbal.callback = button_verbal_callback
+            view.add_item(button_verbal)
+
+            button_verbal = Button(label="Verbal", style=discord.ButtonStyle.primary)
             async def button_verbal_callback(button_interaction: discord.Interaction):
                 try:
                     if button_interaction.user.id != interaction.user.id:
@@ -253,10 +387,10 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
                     for item in view.children:
                         item.disabled = True
-                    await button_message.edit(content="I noticed you are in a voice channel. Decision recieved.", view=view)
+                    await button_message.edit(content="I noticed you are in a voice channel. Decision recieved (Voice).", view=view)
 
                     await button_interaction.response.defer()
-                    await respond(True)
+                    await respond(True, False)
                 except Exception as e:
                     print(f"An error occurred: {str(e)}")
             button_verbal.callback = button_verbal_callback
@@ -271,10 +405,10 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
                     for item in view.children:
                         item.disabled = True
-                    await button_message.edit(content="I noticed you are in a voice channel. Decision recieved.", view=view)
+                    await button_message.edit(content="I noticed you are in a voice channel. Decision recieved (text).", view=view)
 
                     await button_interaction.response.defer()
-                    await respond(False)
+                    await respond(False, False)
                 except Exception as e:
                     print(f"An error occurred: {str(e)}")
             button_text.callback = button_text_callback
@@ -286,7 +420,7 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                 ephemeral=True
             )
         else:
-            await respond(False)
+            await respond(False, False)
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
