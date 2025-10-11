@@ -62,6 +62,7 @@ Hardware being used to run the bot:
 - [ ] Move entire ask command into a modal?
 - [ ] When using a reasoning model, show the rolling thinking summaries.
 - [ ] Have ask command responses be in a thread?
+- [ ] The current `startup_time` is actually the time since the bot disconnected and reconnected to discord. Track this AND original program startup seperately. Maybe call the current metric "time since API reconnection"
 
 ## [Legal Attribution](https://about.google/brand-resource-center/guidance/apis/#legal-attribution)
 Gemini™ is a trademark of Google LLC.
