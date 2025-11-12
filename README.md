@@ -63,6 +63,7 @@ Hardware being used to run the bot:
 - [ ] When using a reasoning model, show the rolling thinking summaries.
 - [ ] Have ask command responses be in a thread?
 - [ ] The current `startup_time` is actually the time since the bot disconnected and reconnected to discord. Track this AND original program startup seperately. Maybe call the current metric "time since API reconnection"
+- [ ] You can DM the bot but it isn't built to handle that, discord shows `••• WarpBot is thinking...` and after a long time throws `The application did not respond`! Maybe make it autoreply saying DMs are unsupported (for Gemini™ ToS abiding reasons) or block people from DM-ing it at all?
 
 ## [Legal Attribution](https://about.google/brand-resource-center/guidance/apis/#legal-attribution)
 Gemini™ is a trademark of Google LLC.
