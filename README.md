@@ -55,15 +55,15 @@ Hardware being used to run the bot:
 - [x] Make the bot ground to own provided context files as part of an optional argument for levels of knowledge about Warp.
 - [x] Use Gemini™ Voice Generation for TTS instead of regular Google TTS.
 - [x] Add "Pro" users that are allowed to pick which Gemini™ model they want to use, and have access to Gemini™ Voice Generation.
-- [ ] (Needs more thought before implementation) Tell the bot to give more concise answers, more like a chatbot. When extended answers are given, try to make it split between multiple messages instead of truncating.
 - [ ] (Needs research to see if it is possible to do simply and securely) Allow for uploading of 1 extra file for analysis from the AI.
 - [ ] Hide portfolio context behind "Pro".
 - [ ] Make use of embeds (looks more polished + 6k max char count instead of 2k with a regular message).
 - [ ] Move entire ask command into a modal?
-- [ ] When using a reasoning model, show the rolling thinking summaries.
+- [x] When using a reasoning model, show the rolling thinking summaries. <- Gemini™ doesn't have a clean way for this to happen, I just show the latest 50 characters of thoughts while it thinks.
 - [ ] Have ask command responses be in a thread?
-- [ ] The current `startup_time` is actually the time since the bot disconnected and reconnected to discord. Track this AND original program startup seperately. Maybe call the current metric "time since API reconnection"
-- [ ] You can DM the bot but it isn't built to handle that, discord shows `••• WarpBot is thinking...` and after a long time throws `The application did not respond`! Maybe make it autoreply saying DMs are unsupported (for Gemini™ ToS abiding reasons) or block people from DM-ing it at all?
+- [x] The current `startup_time` is actually the time since the bot disconnected and reconnected to discord. Track this AND original program startup seperately. Maybe call the current metric "time since API reconnection"
+- [x] You can DM the bot but it isn't built to handle that, discord shows `••• WarpBot is thinking...` and after a long time throws `The application did not respond`! Maybe make it autoreply saying DMs are unsupported (for Gemini™ ToS abiding reasons) or block people from DM-ing it at all? <- actually ended up just removing the ability to use commands in its DMs.
+- [ ] Add Gemini™ Live support in voice channels through a new `/live` command. Make this "Pro" only due to the cost. [This](https://github.com/2187Nick/discord-voice-to-voice-gemini) repo has an interesting implementation.
 
 ## [Legal Attribution](https://about.google/brand-resource-center/guidance/apis/#legal-attribution)
 Gemini™ is a trademark of Google LLC.
