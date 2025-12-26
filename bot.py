@@ -20,6 +20,8 @@ print("Done")
 
 ########## SETUP ##########
 
+startup_time = time.time()
+
 print("Loading API Keys... ", end="")
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -69,7 +71,7 @@ warp_system_instruction = "You are an AI Helper discord bot created by the F1 in
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix='!', intents=intents, activity=discord.Game(name='WarpGame'), help_command=None)
 
-startup_time = None
+reconnection_time = None
 
 @bot.event
 async def on_ready():
@@ -77,44 +79,49 @@ async def on_ready():
         print("WarpBot is now online.")
         synced = await bot.tree.sync()
         print(f"All {len(synced)} command(s) have been synced.")
-        global startup_time
-        startup_time = time.time()
+        global reconnection_time
+        reconnection_time = time.time()
     except Exception as e:
         print(e)
 
 ########## GENERAL COMMANDS ##########
 
 # Respond with Command List
-@bot.tree.command(name='help')
+@bot.tree.command(name="help", description="Provides a detailed command list.")
+@app_commands.guild_only()
 async def help(interaction: discord.Interaction):
     await interaction.response.send_message(f"**Commands List**\n\n`/help`\n- Provides some help (a command list for this bot).\n\n`/about`\n- Provides some information about the Bot and its origins/capabilities.\n\n`/ask`\n- Ask WarpBot anything (sensible)! If in a voice channel, a UI will be shown where you can opt to have it read it aloud to you.\n\n`/avatar`\n- Returns URL to a selected user's discord avatar.\n\n`/hardware`\n- Supplies current CPU temperature, CPU-arm clock, GPU-core (2D) clock, GPU-v3d (3D) clock speed and if the Pi is throttling.\n\n`/ping` & `/pong`\n- Ping or Pongs!\n\n`/uptime`\n- Tells you how long the bot has had a continous uptime! The Pi however, never turns off...", ephemeral=True)
 
 # Respond with Pong + Round Trip Latency
-@bot.tree.command(name='ping')
+@bot.tree.command(name="ping", description="Pong! Provides latency")
+@app_commands.guild_only()
 async def ping(interaction: discord.Interaction):
     latency = round(interaction.client.latency * 1000)
     await interaction.response.send_message(f"Pong! Latency: {latency}ms", ephemeral=True)
 
 # Respond with Ping + Round Trip Latency
-@bot.tree.command(name='pong')
+@bot.tree.command(name="pong", description="Ping! Provides latency.")
+@app_commands.guild_only()
 async def pong(interaction: discord.Interaction):
     latency = round(interaction.client.latency * 1000)
     await interaction.response.send_message(f"Ping! Latency: {latency}ms", ephemeral=True)
 
 # Provide about information regarding Bot
-@bot.tree.command(name='about')
+@bot.tree.command(name="about", description="Provides Bot information. Useful to know!")
+@app_commands.guild_only()
 async def about(interaction: discord.Interaction):
     view = discord.ui.View()
     view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Warp Racing website", url="https://warp-racing.com"))
-    view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Donate to Warp!", url="https://www.gofundme.com/f/warp-racing"))
+    view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Donate to Warp!", url="https://www.gofundme.com/f/help-warp-get-to-the-uk-national-finals"))
     await interaction.response.send_message(
-        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing using the Google Geminiâ¢ 2.5 Flash Large Language Model. I have knowledge of events up to **January 2025**, and scan all inputted queries and generated results for toxicity using Warp's Safeguard system.\n*Please note that each `/ask` command is individual, and does not include previous context.*\n\nGeminiâ¢ is a trademark of Google LLC.",
+        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing using the Google Gemini™ 2.5 Flash Large Language Model. I have knowledge of events up to **January 2025**, and scan all inputted queries and generated results for toxicity using Warp's Safeguard system.\n*Please note that each `/ask` command is individual, and does not include previous context.*\n\nGemini™ is a trademark of Google LLC.",
         ephemeral=True,
         view=view
     )
 
 # Raspberry Pi 5 Hardware Information
-@bot.tree.command(name='hardware')
+@bot.tree.command(name="hardware", description="Bot feeling slow? See server clocks and temperatues!")
+@app_commands.guild_only()
 async def hardware(interaction: discord.Interaction):
     vcgm = Vcgencmd()
     temp = vcgm.measure_temp()
@@ -125,15 +132,17 @@ async def hardware(interaction: discord.Interaction):
     await interaction.response.send_message(f"WarpBot is running on a **Raspberry Pi 5 8GB with 512GB of M.2 NVMe SSD Storage**.\n\n*Current Hardware Info:*\nTemperature: `{temp}C`\nClock (CPU-arm, GPU-core, GPU-v3d): `{clock_arm}Mhz`, `{clock_core}MHz`, `{clock_v3d}MHz`\nThrottled: `{throttled}`", ephemeral=True)
 
 # Uptime Information
-@bot.tree.command(name='uptime')
+@bot.tree.command(name="uptime", description="Provides basic uptime information.")
+@app_commands.guild_only()
 async def uptime(interaction: discord.Interaction):
-    if startup_time:
-        await interaction.response.send_message(f"Bot started <t:{int(startup_time)}:R>.", ephemeral=True)
+    if reconnection_time:
+        await interaction.response.send_message(f"Bot startup was <t:{int(startup_time)}:R>.\nLast API reconnection was <t:{int(reconnection_time)}:R>.", ephemeral=True)
     else:
         await interaction.response.send_message("Uptime could not be determined.", ephemeral=True)
 
 # Get the avatar of a user
-@bot.tree.command(name='avatar')
+@bot.tree.command(name="avatar", description="Returns a URL to a user's avatar image.")
+@app_commands.guild_only()
 async def avatar(interaction: discord.Interaction, user: discord.User = None):
     if user is None:
         user = interaction.user
@@ -143,7 +152,8 @@ async def avatar(interaction: discord.Interaction, user: discord.User = None):
 
 ########## ASK COMMAND ##########
 
-@bot.tree.command(name='ask')
+@bot.tree.command(name="ask", description="Ask WarpBot anything! Join a Voice Channel to hear it speak.")
+@app_commands.guild_only()
 @app_commands.describe(context="Decide if WarpBot is to respond using Warp Context material")
 @app_commands.choices(context = [
     app_commands.Choice(name="None",value="none"),
@@ -161,7 +171,7 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
                 ########## TEXT GENERATION ##########
                 
-                context_value = context.value if context else "basic"
+                context_value = context.value if context else "full"
 
                 text_prompt = f"{interaction.user.mention}'s query: {query}"
                 API_prompt = [text_prompt]
@@ -187,28 +197,13 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                             placeholder="Choose a Gemini model to use...",
                             options=[
                                 discord.SelectOption(
-                                    label="Geminiâ¢ 2.5 Pro",
-                                    value="gemini-2.5-pro",
-                                    description="Google's most powerful reasoning model, for complex reasoning tasks."
-                                ),
-                                discord.SelectOption(
-                                    label="Geminiâ¢ 2.5 Flash",
+                                    label="Gemini™ 2.5 Flash",
                                     value="gemini-2.5-flash",
                                     description="Google's hybrid reasoning model, with a 1M token context window.",
                                 ),
                                 discord.SelectOption(
-                                    label="Geminiâ¢ 2.5 Flash-Lite",
+                                    label="Gemini™ 2.5 Flash-Lite",
                                     value="gemini-2.5-flash-lite",
-                                    description="Google's smallest and most cost effective model, built for at scale usage."
-                                ),
-                                discord.SelectOption(
-                                    label="Geminiâ¢ 2.0 Flash",
-                                    value="gemini-2.0-flash",
-                                    description="Google's most balanced multimodal model with great performance."
-                                ),
-                                discord.SelectOption(
-                                    label="Geminiâ¢ 2.0 Flash-Lite",
-                                    value="gemini-2.0-flash-lite",
                                     description="Google's smallest and most cost effective model, built for at scale usage."
                                 )
                             ]
@@ -220,7 +215,9 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
                             self.model_choice = select.values[0]
 
-                            await select_interaction.response.edit_message(content=f"Model choice (`{self.model_choice}`) confirmed. Generating...",  view=None)
+                            model_label = next(opt.label for opt in select.options if opt.value == self.model_choice)
+
+                            await select_interaction.response.edit_message(content=f"Model choice (`{model_label}`) confirmed.",  view=None)
 
                             self.stop()
 
@@ -234,22 +231,34 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                     else:
                         model_to_use = view.model_choice
 
-                sent_message = await interaction.followup.send("Generating...")
+                sent_message = await interaction.followup.send("Thinking...")
+
+                grounding_tool=types.Tool(googleSearch=types.GoogleSearch())
 
                 response = client.models.generate_content_stream(
                     model=model_to_use,
                     contents=API_prompt,
                     config=types.GenerateContentConfig(
+                        thinking_config=types.ThinkingConfig(
+                            thinking_budget=-1,
+                            include_thoughts=True
+                        ),
                         temperature=0.3,
                         response_mime_type="text/plain",
-                        system_instruction=warp_system_instruction
+                        system_instruction=warp_system_instruction,
+                        tools=[grounding_tool]
                     )
                 )
 
                 current_response = ""
 
                 for chunk in response:
-                    if not chunk or not chunk.text:
+                    if not chunk.text:
+                        thoughts = ""
+                        for part in chunk.candidates[0].content.parts:
+                            if part.thought:
+                                thoughts += part.text
+                                await sent_message.edit(content=f"Thinking... `{thoughts.strip()[-50:]}`")
                         continue
 
                     current_response += chunk.text
@@ -424,6 +433,10 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    print(f"Command Error: {error}")
 
 print("Done")
 bot.run(TOKEN)
