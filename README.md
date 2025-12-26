@@ -60,7 +60,7 @@ Hardware being used to run the bot:
 - [x] When using a reasoning model, show the rolling thinking summaries. <- Gemini™ doesn't have a clean way for this to happen, I just show the latest 50 characters of thoughts while it thinks.
 - [ ] (Needs research to see if it is possible to do simply and securely) Allow for uploading of 1 extra file for analysis from the AI.
 - [ ] Hide portfolio context behind "Pro".
-- [ ] Make use of embeds (looks more polished + 6k max char count instead of 2k with a regular message).
+- [ ] Make use of embeds (looks more polished + 6k max char count instead of 2k with a regular message). ADD GOOGLE SEARCH AND GOOGLE MAPS GROUNDING, AND SOURCES IN THE EMBED!
 - [ ] Move entire ask command into a modal?
 - [ ] Have ask command responses be in a thread?
 - [ ] Add Gemini™ Live support in voice channels through a new `/live` command. Make this "Pro" only due to the cost. [This](https://github.com/2187Nick/discord-voice-to-voice-gemini) repo has an interesting implementation.
