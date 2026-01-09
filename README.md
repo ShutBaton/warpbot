@@ -62,8 +62,8 @@ Hardware being used to run the bot:
 - [ ] Hide portfolio context behind "Pro".
 - [ ] Make use of embeds (looks more polished + 6k max char count instead of 2k with a regular message). ADD GOOGLE SEARCH AND GOOGLE MAPS GROUNDING, AND SOURCES IN THE EMBED!
 - [ ] Move entire ask command into a modal?
-- [ ] Have ask command responses be in a thread?
 - [ ] Add Gemini™ Live support in voice channels through a new `/live` command. Make this "Pro" only due to the cost. [This](https://github.com/2187Nick/discord-voice-to-voice-gemini) repo has an interesting implementation.
+- [ ] Add support for Gemini™ API File Search, reduces input token usage for RAG (Retrieval Augmented Generation) AKA grounding to files.
 
 ## [Legal Attribution](https://about.google/brand-resource-center/guidance/apis/#legal-attribution)
 Gemini™ is a trademark of Google LLC.
