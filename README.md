@@ -2,7 +2,8 @@
 A repository used for development of the experimental WarpBot AI-powered Discord Bot using [Google Gemini™](https://gemini.google.com/) LLMs & LRMs.
 
 ## Dependencies / Install
-This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what hardware it runs on. The use of a python virtual environment is highly recommended. I made a shell script (named `start_warpbot.sh`) that I use to quickly startup the bot, which involves moving to the correct directiory, activating the virtual environment and starting `bot.py`.
+> [!CAUTION]  
+> This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what hardware it runs on.
 
 There are a few dependencies for `bot.py`, mainly `gTTS`, `google-genai`, `discord.py[voice]`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
 
@@ -12,7 +13,13 @@ Similarly, `ffmpeg` is a requirement for the `Voice + Text` feature. I installed
 
 Run as a python file, and dont forget to fill out your `.env` (a template is provided) with the `DISCORD_BOT_TOKEN` and `GEMINI_API_KEY`!. A python virtual environment for installation and execution is recommended. 😄
 
-You will need to make context files (in a `context_files` directory) and swap them out in the code! (and possibly make the directory for temp audio files, `/temp_audio`). In the code, near the top just swap out the variables for the file location (which you should fill in the `.env` and import from) and their mime-types (check they work with Gemini too!). If you decide to change the object's name too, be sure to change them in the response function in the ask command.
+> [!TIP]
+> The use of a python virtual environment is highly recommended. I made a shell script (named `start_warpbot.sh`) that I use to quickly startup the bot, which involves moving to the correct directiory, activating the virtual environment and starting `bot.py`.
+
+> [!WARNING]
+> You will need to make context files (in a `context_files` directory) and swap them out in the code! (and possibly make the directory for temp audio files, `/temp_audio`). In the code, near the top just swap out the variables for the file location (which you should fill in the `.env` and import from) and their mime-types (check they work with Gemini too!).
+
+If you decide to change the object's name too, be sure to change them in the response function in the ask command.
 
 ## Hardware
 Hardware being used to run the bot:
