@@ -67,7 +67,7 @@ with open("pro_userlist.csv", "r") as f:
 print("Done")
 
 print("Loading Discord Client... ", end="")
-warp_system_instruction = "You are an AI Helper discord bot created by the F1 in Schools (now called STEM Racing) competition team Warp Racing. Warp Racing consists of a team of boys from St. Olave's Grammar School in Orpington, Kent, UK. They won the Lenovo F1 in Schools National Finals (Development Class) in March 2024, gaining the awards of \"1st Place (National Dev. Class Champions)\", \"Fastest Car\", \"Best Engineered Car\" and \"Research and Development\". The user querying you is a discord user interested in the team not necessarily affiliated with Warp Racing, and you are to help them with their task or provide information. Your responses may occasionally be used in a voice channel via text-to-speech. Any files attached are not from the user (they are not aware of their existence), but instead contain information so you can give an informed answer."
+warp_system_instruction = "You are an AI Helper discord bot created by the F1 in Schools (now called STEM Racing) competition team Warp Racing. The user querying you is a discord user interested in the team not necessarily affiliated with Warp Racing, and you are to help them with their task or provide information about Warp. Your responses may occasionally be used in a voice channel via text-to-speech. Any files attached are not from the user (they are not aware of their existence), but instead contain information so you can give an informed answer to them."
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix='!', intents=intents, activity=discord.Game(name='WarpGame'), help_command=None)
 
@@ -114,7 +114,7 @@ async def about(interaction: discord.Interaction):
     view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Warp Racing website", url="https://warp-racing.com"))
     view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Donate to Warp!", url="https://www.gofundme.com/f/help-warp-get-to-the-uk-national-finals"))
     await interaction.response.send_message(
-        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing using the Google Gemini™ 2.5 Flash Large Language Model. I have knowledge of events up to **January 2025**, and scan all inputted queries and generated results for toxicity using Warp's Safeguard system.\n*Please note that each `/ask` command is individual, and does not include previous context.*\n\nGemini™ is a trademark of Google LLC.",
+        f"Hello {interaction.user.mention}. I am WarpBot, a AI helper created by Warp Racing using the Google Gemini™ 2.5 Flash Large Language Model (by default). I have knowledge of events up to **January 2025**, and scan all inputted queries and generated results for toxicity using Warp's Safeguard system.\n*Please note that each `/ask` command is individual, and does not include previous context.*\n\nConcerned about a word in a reponse? Let us know so we can add it to our filters using [this email](mailto:ai@warp-racing.com?subject=WarpBot%20Message%20Report).\n\nGemini™ is a trademark of Google LLC.",
         ephemeral=True,
         view=view
     )
@@ -129,7 +129,15 @@ async def hardware(interaction: discord.Interaction):
     clock_core = int(vcgm.measure_clock('core')/1000000)
     clock_v3d = int(vcgm.measure_clock('v3d')/1000000)
     throttled = vcgm.get_throttled()['breakdown']['2']
-    await interaction.response.send_message(f"WarpBot is running on a **Raspberry Pi 5 8GB with 512GB of M.2 NVMe SSD Storage**.\n\n*Current Hardware Info:*\nTemperature: `{temp}C`\nClock (CPU-arm, GPU-core, GPU-v3d): `{clock_arm}Mhz`, `{clock_core}MHz`, `{clock_v3d}MHz`\nThrottled: `{throttled}`", ephemeral=True)
+
+    embed = discord.Embed(description=f"Hardware information from <t:{int(time.time())}:R>. WarpBot is hosted on a Raspberry Pi 5 8GB with 512GB of NVMe SSD Storage running Pi OS.", color=discord.Color(0x4245A0))
+    embed.set_author(name="System Status", icon_url="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/raspberry-pi-icon.png")
+
+    embed.add_field(name="Temperature", value=f"`{temp}°C`", inline=True)
+    embed.add_field(name="Throttled", value=f"`{throttled}`", inline=True)
+    embed.add_field(name="Clock Speeds (CPU / System / GPU-3D)", value=f"`{clock_arm}MHz` / `{clock_core}MHz` / `{clock_v3d}MHz`", inline=False)
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # Uptime Information
 @bot.tree.command(name="uptime", description="Provides basic uptime information.")
@@ -185,6 +193,7 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                     API_prompt.append(enterprise_ctx)
 
                 model_to_use = "gemini-2.5-flash"
+                model_to_use_label = "Gemini™ 2.5 Flash"
 
                 if str(interaction.user.id) in pro_user_ids:
                     
@@ -192,19 +201,25 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                         def __init__(self):
                             super().__init__(timeout=60) # 1 minute timeout
                             self.model_choice = None
+                            self.model_label = None
 
                         @discord.ui.select(
                             placeholder="Choose a Gemini model to use...",
                             options=[
                                 discord.SelectOption(
+                                    label="Gemini™ 3 Flash Preview",
+                                    value="gemini-3-flash-preview",
+                                    description="Google's most intelligent high-speed model, with frontier intelligence. No Search and Maps Support."
+                                ),
+                                discord.SelectOption(
                                     label="Gemini™ 2.5 Flash",
                                     value="gemini-2.5-flash",
-                                    description="Google's hybrid reasoning model, with a 1M token context window.",
+                                    description="Google's hybrid reasoning model, with a 1M token context window. Supports Search and Maps.",
                                 ),
                                 discord.SelectOption(
                                     label="Gemini™ 2.5 Flash-Lite",
                                     value="gemini-2.5-flash-lite",
-                                    description="Google's smallest and most cost effective model, built for at scale usage."
+                                    description="Google's smallest and most cost effective model, built for scale. Supports Search and Maps."
                                 )
                             ]
                         )
@@ -215,9 +230,9 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
                             self.model_choice = select.values[0]
 
-                            model_label = next(opt.label for opt in select.options if opt.value == self.model_choice)
+                            self.model_label = next(opt.label for opt in select.options if opt.value == self.model_choice)
 
-                            await select_interaction.response.edit_message(content=f"Model choice (`{model_label}`) confirmed.",  view=None)
+                            await select_interaction.response.edit_message(content=f"Model choice confirmed.",  view=None)
 
                             self.stop()
 
@@ -230,10 +245,22 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                         await selection_message.edit(content="Model selection timed out. Proceeding with the default model.", view=None)
                     else:
                         model_to_use = view.model_choice
+                        model_to_use_label = view.model_label
 
-                sent_message = await interaction.followup.send("Thinking...")
+                embed = discord.Embed(title=query, description="Thinking...", color=discord.Color(0x4245A0))
+                embed.set_author(name=model_to_use_label, icon_url="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-gemini-icon.png")
+                sent_message = await interaction.followup.send(embed=embed)
 
-                grounding_tool=types.Tool(googleSearch=types.GoogleSearch())
+                google_search_tool=types.Tool(googleSearch=types.GoogleSearch())
+                google_maps_tool=types.Tool(google_maps=types.GoogleMaps())
+
+                model_tools_config = {
+                    "gemini-2.5-flash": [google_search_tool, google_maps_tool],
+                    "gemini-2.5-flash-lite": [google_search_tool, google_maps_tool],
+                    "gemini-3-flash-preview": None
+                }
+
+                tools_to_use = model_tools_config.get(model_to_use, None)
 
                 response = client.models.generate_content_stream(
                     model=model_to_use,
@@ -246,7 +273,7 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                         temperature=0.3,
                         response_mime_type="text/plain",
                         system_instruction=warp_system_instruction,
-                        tools=[grounding_tool]
+                        tools=tools_to_use
                     )
                 )
 
@@ -258,7 +285,8 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                         for part in chunk.candidates[0].content.parts:
                             if part.thought:
                                 thoughts += part.text
-                                await sent_message.edit(content=f"Thinking... `{thoughts.strip()[-50:]}`")
+                                embed.description = f"Thinking... `{thoughts.strip()[-50:]}`"
+                                await sent_message.edit(embed=embed)
                         continue
 
                     current_response += chunk.text
@@ -266,18 +294,26 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                     if not current_response.strip():
                         continue
 
-                    if len(current_response) >= 2000:
+                    if len(current_response) >= 4000:
                         view = discord.ui.View()
-                        view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Donate to Warp!", url="https://www.gofundme.com/f/warp-racing"))
+                        view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, label="Donate to Warp!", url="https://www.gofundme.com/f/help-warp-get-to-the-uk-national-finals"))
+
+                        warning_text = "WarpBot's response is too large for Discord's character count. The message has been truncated."
+
                         if is_voice:
-                            await interaction.followup.send("WarpBot's response is too large for Discord's character count. The message has been truncated and **verbal is unavailable**.\n\nConsider donating to support Warp's jouney and fund WarpBot:", view=view)
+                            warning_text = "WarpBot's response is too large for Discord's character count. The message has been truncated and **verbal is unavailable**."
                             is_voice = False
-                        else:
-                            await interaction.followup.send("WarpBot's response is too large for Discord's character count. The message has been truncated.\n\nConsider donating to support Warp's jouney and fund WarpBot:", view=view)
-                        await sent_message.edit(content=current_response[:2000])
-                        break
                     
-                    await sent_message.edit(content=current_response)
+                        warning_text += " Consider donating to support Warp's jouney and fund WarpBot."
+
+                        embed.description = current_response[:4000]+"... (too long)"
+                        embed.add_field(name="⚠️ Response Truncated", value=warning_text, inline=False)
+
+                        await sent_message.edit(embed=embed, view=view)
+                        break
+
+                    embed.description = current_response
+                    await sent_message.edit(embed=embed)
                 
                 if not current_response.strip():
                     await sent_message.edit(content="The model returned an empty response!")
@@ -285,14 +321,53 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
             except errors.APIError as e:
                 print(f"API Error: {str(e)}")
-                await sent_message.edit(content=f"An error occurred while generating the response. Please try again later.\n\n{e.code}: {e.message}")
+                
+                status_names = {
+                    400: "Bad Request (Invalid Argument)",
+                    401: "Unauthorized (Check API Key)",
+                    402: "Payment Required",
+                    403: "Forbidden (Permission Denied)",
+                    404: "Model Not Found",
+                    405: "Method Not Allowed",
+                    406: "Not Acceptable",
+                    408: "Request Timeout",
+                    409: "Conflict (Aborted/Already Exists)",
+                    410: "Gone",
+                    411: "Length Required",
+                    412: "Precondition Failed",
+                    413: "Payload Too Large",
+                    414: "URI Too Long",
+                    415: "Unsupported Media Type",
+                    429: "Resource Exhausted (Rate Limit)",
+                    499: "Client Closed Request",
+                    500: "Internal Server Error",
+                    501: "Not Implemented",
+                    502: "Bad Gateway",
+                    503: "Service Unavailable",
+                    504: "Gateway Timeout (Deadline Exceeded)"
+                }
+
+                try:
+                    code_key = int(e.code)
+                except (ValueError, TypeError):
+                    code_key = e.code
+
+                status_text = status_names.get(code_key, None)
+
+                error_title = f"{e.code} - {status_text}" if status_text else str(e.code)
+
+                embed = discord.Embed(title=error_title, description=e.message, color=discord.Color(0xFF0000))
+                embed.set_author(name="Gemini™ API Error", icon_url="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-gemini-icon.png")
+
+                await sent_message.edit(embed=embed)
 
             try:
 
                 ########## CONTENT SCAN ##########
 
                 if safeguard.scan_content(current_response):
-                    await sent_message.edit(content="Unsafe content was generated. Safeguard has **blocked** this content.")
+                    embed.description = "Unsafe content was generated. Safeguard has **blocked** this content."
+                    await sent_message.edit(embed=embed)
                     is_voice = False
 
                 ########## VOICE GENERATION ##########
@@ -308,7 +383,7 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                             speech_config=types.SpeechConfig(
                                 voice_config=types.VoiceConfig(
                                     prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                                    voice_name='Puck',
+                                    voice_name='Zephyr',
                                     )
                                 )
                             ),
@@ -331,7 +406,12 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
                     voice_channel = interaction.user.voice.channel
                     
                     if not voice_channel:
-                        await voice_status_message.edit(content="You need to be in a voice channel for me to speak!")
+                        await voice_status_message.edit(content="You need to be in a voice channel to use Text-To-Speech.")
+                        return
+                    
+                    permissions = voice_channel.permissions_for(interaction.guild.me)
+                    if not permissions.connect or not permissions.speak:
+                        await voice_status_message.edit(content="I cannot join that channel!")
                         return
 
                     connected_voice_channel = await voice_channel.connect()
@@ -356,8 +436,8 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
 
         await interaction.response.defer(thinking=True)
         
-        if len(query) > 500:
-            await interaction.followup.send(content="This query is too long (max. 500 characters). Safeguard has **blocked** this query from being generated.")
+        if len(query) > 256:
+            await interaction.followup.send(content="This query is too long (max. 256 characters). Safeguard has **blocked** this query from being generated.")
             return
 
         if safeguard.scan_content(query):
@@ -372,8 +452,12 @@ async def ask(interaction: discord.Interaction, query: str, context: typing.Opti
             button_verbal = Button(label="Adv. Verbal", style=discord.ButtonStyle.primary)
             async def button_verbal_callback(button_interaction: discord.Interaction):
                 try:
-                    if (button_interaction.user.id != interaction.user.id) or (str(button_interaction.user.id) not in pro_user_ids):
-                        await button_interaction.response.send_message("You cannot interact with this button. Only Pro users have access to Adv. Verbal due to the large amount of processing power that is needed.", ephemeral=True)
+                    if button_interaction.user.id != interaction.user.id:
+                        await button_interaction.response.send_message("You cannot interact with this button.", ephemeral=True)
+                        return
+                    
+                    if str(button_interaction.user.id) not in pro_user_ids:
+                        await button_interaction.response.send_message("Only Pro users have access to Adv. Verbal due to the large amount of processing power that is needed.", ephemeral=True)
                         return
 
                     for item in view.children:
