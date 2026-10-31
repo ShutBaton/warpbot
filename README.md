@@ -10,7 +10,7 @@ WarpBot has now been succeeded by my new agent harness for discord, EncoreBot, a
 > [!IMPORTANT]  
 > This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what hardware it runs on.
 
-There are a few dependencies for `bot.py`, mainly `gTTS`, `google-genai`, `discord.py[voice]`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine. I couldn't be bothered to make a requirements.txt. My bad.
+There are a few dependencies for `bot.py`, mainly `gTTS`, `google-genai`, `discord.py[voice]`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine. I couldn't be bothered to make a requirements.txt. My bad. For `analytics.py` you likely need `matplotlib` and `pandas`.
 
 `safeguard.py` however, uses `detoxify`. This is again installed in the same way as above - `pip install [module name here]`.
 
