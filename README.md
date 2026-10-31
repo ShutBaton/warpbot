@@ -1,8 +1,13 @@
 # WarpBot
 A repository used for development of the experimental WarpBot AI-powered Discord Bot using [Google Gemini™](https://gemini.google.com/) LLMs & LRMs.
 
+WarpBot has now been succeeded by my new agent harness for discord, EncoreBot, allowing a GPT-6 Luna instance to act ambiently and agentically across channels, creating memories, starting conversations, and helping with existing ones. It is based on the OpenAI library, and uses Exa for search (so much more modern).
+
+> [!CAUTION]
+> I have not been maintaining this repo in several months to a year - there are some known changes that must be made for this Bot to function correctly - this includes updating voice to the new voice protocols required by Discord.py and the Discord API, and updating to work with the ever-evolving Gemini™ API. It might be worth getting this moved to the OpenAI library, as Gemini™ supports this (afaik).
+
 ## Dependencies / Install
-> [!CAUTION]  
+> [!IMPORTANT]  
 > This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what hardware it runs on.
 
 There are a few dependencies for `bot.py`, mainly `gTTS`, `google-genai`, `discord.py[voice]`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine. I couldn't be bothered to make a requirements.txt. My bad.
