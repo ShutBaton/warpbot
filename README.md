@@ -5,7 +5,7 @@ A repository used for development of the experimental WarpBot AI-powered Discord
 > [!CAUTION]  
 > This is designed ONLY for use on a Raspberry Pi 5 - it may work elsewhere - provided you remove or change the `/hardware` command since it makes use of `vcgencmd`, which seems very specicfic on what hardware it runs on.
 
-There are a few dependencies for `bot.py`, mainly `gTTS`, `google-genai`, `discord.py[voice]`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine.
+There are a few dependencies for `bot.py`, mainly `gTTS`, `google-genai`, `discord.py[voice]`, `asyncio`, `vcgencmd`, `PyNaCl` and `dotenv`. Just `pip install` those listed and you *should* be fine. I couldn't be bothered to make a requirements.txt. My bad.
 
 `safeguard.py` however, uses `detoxify`. This is again installed in the same way as above - `pip install [module name here]`.
 
@@ -66,9 +66,9 @@ Hardware being used to run the bot:
 - [x] You can DM the bot but it isn't built to handle that, discord shows `••• WarpBot is thinking...` and after a long time throws `The application did not respond`! Maybe make it autoreply saying DMs are unsupported (for Gemini™ ToS abiding reasons) or block people from DM-ing it at all? <- actually ended up just removing the ability to use commands in its DMs.
 - [x] When using a reasoning model, show the rolling thinking summaries. <- Gemini™ doesn't have a clean way for this to happen, I just show the latest 50 characters of thoughts while it thinks.
 - [x] Make use of embeds (looks more polished + 6k max char count instead of 2k with a regular message). ADD GOOGLE SEARCH AND GOOGLE MAPS GROUNDING!
+- [x] Hide portfolio context behind "Pro".
+- [x] Move entire ask command into a modal?
 - [ ] (Needs research to see if it is possible to do simply and securely) Allow for uploading of 1 extra file for analysis from the AI.
-- [ ] Hide portfolio context behind "Pro".
-- [ ] Move entire ask command into a modal?
 - [ ] Add Gemini™ Live support in voice channels through a new `/live` command. Make this "Pro" only due to the cost. [This](https://github.com/2187Nick/discord-voice-to-voice-gemini) repo has an interesting implementation.
 - [ ] Add support for Gemini™ API File Search, reduces input token usage for RAG (Retrieval Augmented Generation) AKA grounding to files.
 
